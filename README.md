@@ -14,7 +14,7 @@ So instead of:
 
 it reads:
 
-assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
+assert(loadfile("C:\\Users\\[WINDOWS_USERNAME]\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
 Then remove the contents of the Do Script File part in the same trigger.
 
