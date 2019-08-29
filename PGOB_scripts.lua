@@ -5,16 +5,17 @@ Flag_SAM = '61'
 Flag_AWACS = '62'
 Flag_TANKER = '63'
 Flag_PRIMARY = '64'
-Flag_Debug = '69'
+Flag_DEBUG = '69'
 
-string_A2A_thread_none = 'Air Threat: none'
-string_A2A_thread_low = 'Low A2A Threat (L39)'
-string_A2A_thread_medium = 'Medium A2A Threat (MiG-21, F-4, F-5)'
-string_A2A_thread_high = 'High A2A Threat (MiG-21, MiG-29, F-4, F-5)'
+string_A2A_threat_none = 'Air Threat: none'
+string_A2A_threat_low = 'Low A2A Threat (L39)'
+string_A2A_threat_medium = 'Medium A2A Threat (MiG-21, F-4, F-5)'
+string_A2A_threat_high = 'High A2A Threat (MiG-21, MiG-29, F-4, F-5)'
 
-string_SAM_thread_none = 'No SAM Threat'
-string_SAM_thread_low = 'Low SAM Threat (SA-2, SA-18)'
-string_SAM_thread_medium = 'Medium SAM Threat (SA-10, SA-18, AAA, Ships)'
+string_SAM_threat_none = 'No SAM Threat'
+string_SAM_threat_low = 'Low SAM Threat (SA-2, SA-18)'
+string_SAM_threat_medium = 'Medium SAM Threat (SA-2, SA-10, SA-18, AAA, Ships)'
+string_SAM_threat_high = 'High SAM Threat (SA-2, SA-10, SA-18, AAA, Ships)'
 
 string_AWACS_off = 'AWACS disabled'
 string_AWACS_on = 'AWACS available'
@@ -45,37 +46,89 @@ bool_blueUnitsDetectedState = false
 -- flagValue was a bigger object with both the flag and its value ... but somehow it then did not properly call setUserFlag ... dont know.
 function handleA2ASetting(flagValue)
 	trigger.action.setUserFlag(Flag_A2A, flagValue)
-	PrintCurrentSettings(true)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_A2A] = string_A2A_threat_none
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_A2A] = string_A2A_threat_low
+	elseif flagValue == 2 then
+		table_settingsStore[Flag_A2A] = string_A2A_threat_medium
+	elseif flagValue == 3 then
+		table_settingsStore[Flag_A2A] = string_A2A_threat_high
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
 function handleSAMSetting(flagValue)
 	trigger.action.setUserFlag(Flag_SAM, flagValue)
-	PrintCurrentSettings(true)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_SAM] = string_SAM_threat_none
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_SAM] = string_SAM_threat_low
+	elseif flagValue == 2 then
+		table_settingsStore[Flag_SAM] = string_SAM_threat_medium
+	elseif flagValue == 3 then
+		table_settingsStore[Flag_SAM] = string_SAM_threat_high
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
 function handleAwacsSetting(flagValue)
 	trigger.action.setUserFlag(Flag_AWACS, flagValue)
-	PrintCurrentSettings(true)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_AWACS] = string_AWACS_off
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_AWACS] = string_AWACS_on
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
 function handleTankerSetting(flagValue)
 	trigger.action.setUserFlag(Flag_TANKER, flagValue)
-	PrintCurrentSettings(true)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_TANKER] = string_Tankers_off
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_TANKER] = string_Tankers_1
+	elseif flagValue == 2 then
+		table_settingsStore[Flag_TANKER] = string_Tankers_2
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
 function handlePrimarySetting(flagValue)
 	trigger.action.setUserFlag(Flag_PRIMARY, flagValue)
-	PrintCurrentSettings(true)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_PRIMARY] = string_Primary_Yacht
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_PRIMARY] = string_Primary_Molniya
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
 function handleDebugSettings(flagValue)
-	trigger.action.setUserFlag(Flag_Debug, flagValue)
-	PrintCurrentSettings(true)
+	trigger.action.setUserFlag(Flag_DEBUG, flagValue)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_DEBUG] = string_Debug_off
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_DEBUG] = string_Debug_on
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
 	return nil
 end
 
@@ -91,6 +144,7 @@ function removeSettings()
 	missionCommands.removeItem(SAM_none)
 	missionCommands.removeItem(SAM_low)
 	missionCommands.removeItem(SAM_medium)
+	missionCommands.removeItem(SAM_high)
 	missionCommands.removeItem(SAM_setting)
 	
 	missionCommands.removeItem(AWACS_off)
@@ -122,9 +176,9 @@ end
 
 function HandleMaxDifficulty()
 	trigger.action.setUserFlag(Flag_A2A, 3)
-	trigger.action.setUserFlag(Flag_SAM, 2)
+	trigger.action.setUserFlag(Flag_SAM, 3)
 	trigger.action.setUserFlag(Flag_AWACS, 0)
-	--trigger.action.setUserFlag(Flag_Debug, 1)
+	trigger.action.setUserFlag(Flag_PRIMARY, 1)
 	PrintCurrentSettings(true)
 end
 
@@ -132,7 +186,7 @@ function HandleMinDifficulty()
 	trigger.action.setUserFlag(Flag_A2A, 0)
 	trigger.action.setUserFlag(Flag_SAM, 0)
 	trigger.action.setUserFlag(Flag_AWACS, 1)
-	--trigger.action.setUserFlag(Flag_Debug, 0)
+	trigger.action.setUserFlag(Flag_PRIMARY, 0)
 	PrintCurrentSettings(true)
 end
 
@@ -140,15 +194,16 @@ function createDifficultySettings()
 	CMD_missionStart = missionCommands.addCommand(string_startMission, nil, HandleStart)
 	
 	A2A_setting = missionCommands.addSubMenu(string_A2A_settings)
-	A2A_none = missionCommands.addCommand(string_A2A_thread_none, A2A_setting, handleA2ASetting, 0)
-	A2A_low = missionCommands.addCommand(string_A2A_thread_low, A2A_setting, handleA2ASetting, 1)
-	A2A_medium = missionCommands.addCommand(string_A2A_thread_medium, A2A_setting, handleA2ASetting, 2)
-	A2A_high = missionCommands.addCommand(string_A2A_thread_high, A2A_setting, handleA2ASetting, 3)
+	A2A_none = missionCommands.addCommand(string_A2A_threat_none, A2A_setting, handleA2ASetting, 0)
+	A2A_low = missionCommands.addCommand(string_A2A_threat_low, A2A_setting, handleA2ASetting, 1)
+	A2A_medium = missionCommands.addCommand(string_A2A_threat_medium, A2A_setting, handleA2ASetting, 2)
+	A2A_high = missionCommands.addCommand(string_A2A_threat_high, A2A_setting, handleA2ASetting, 3)
 	
 	SAM_setting = missionCommands.addSubMenu(string_SAM_settings)
-	SAM_none = missionCommands.addCommand(string_SAM_thread_none, SAM_setting, handleSAMSetting, 0)
-	SAM_low = missionCommands.addCommand(string_SAM_thread_low, SAM_setting, handleSAMSetting, 1)
-	SAM_medium = missionCommands.addCommand(string_SAM_thread_medium, SAM_setting, handleSAMSetting, 2)
+	SAM_none = missionCommands.addCommand(string_SAM_threat_none, SAM_setting, handleSAMSetting, 0)
+	SAM_low = missionCommands.addCommand(string_SAM_threat_low, SAM_setting, handleSAMSetting, 1)
+	SAM_medium = missionCommands.addCommand(string_SAM_threat_medium, SAM_setting, handleSAMSetting, 2)
+	SAM_high = missionCommands.addCommand(string_SAM_threat_high, SAM_setting, handleSAMSetting, 3)
 	
 	AWACS_setting = missionCommands.addSubMenu(string_AWACS_settings)
 	AWACS_off = missionCommands.addCommand(string_AWACS_off, AWACS_setting, handleAwacsSetting, 0)
@@ -170,9 +225,19 @@ function createDifficultySettings()
 	CMD_settingsMax = missionCommands.addCommand(string_settings_setToMax, nil, HandleMaxDifficulty)
 	CMD_settingsMin = missionCommands.addCommand(string_settings_setToMin, nil, HandleMinDifficulty)
 	
+	handleA2ASetting(0)
+	handleSAMSetting(0)
+	handleAwacsSetting(0)
+	handleTankerSetting(0)
+	handlePrimarySetting(0)
+	handleDebugSettings(0)
+	
+	bool_firstRunDone = true
+	
 	return nil
 end
 
+-- a bit too convoluted. Let us just create a lookup table for that later.
 function PrintCurrentSettings(executePrint)
 	if executePrint then
 		local airThreat = trigger.misc.getUserFlag(Flag_A2A)
@@ -183,46 +248,54 @@ function PrintCurrentSettings(executePrint)
 		
 		local currentSettings = "Current settings:\n"
 		
-		if airThreat == 0 then
-			currentSettings = currentSettings .. string_A2A_thread_none .. "\n"
-		elseif airThreat == 1 then
-			currentSettings = currentSettings .. string_A2A_thread_low .. "\n"
-		elseif airThreat == 2 then
-			currentSettings = currentSettings .. string_A2A_thread_medium .. "\n"
-		elseif airThreat == 3 then
-			currentSettings = currentSettings .. string_A2A_thread_high .. "\n"
+		for key,value in pairs(table_settingsStore) do 
+			currentSettings = currentSettings .. key .. ': ' .. value .. "\n"
 		end
 		
-		
-		if samThreat == 0 then
-			currentSettings = currentSettings .. string_SAM_thread_none .. "\n"
-		elseif samThreat == 1 then
-			currentSettings = currentSettings .. string_SAM_thread_low .. "\n"
-		elseif samThreat == 2 then
-			currentSettings = currentSettings .. string_SAM_thread_medium .. "\n"
-		end
-		
-		if awacsEnabled == 0 then
-			currentSettings = currentSettings .. string_AWACS_off .. "\n"
-		else
-			currentSettings = currentSettings .. string_AWACS_on .. "\n"
-		end
-		
-		if tankerEnabled == 0 then
-			currentSettings = currentSettings .. string_Tankers_off .. "\n"
-		elseif tankerEnabled == 1 then
-			currentSettings = currentSettings .. string_Tankers_1 .. "\n"
-		elseif tankerEnabled == 2 then
-			currentSettings = currentSettings .. string_Tankers_2 .. "\n"
-		end
-		
-		currentSettings = currentSettings .. '\n'
-		
-		if debuggerEnabled == false then
-			currentSettings = currentSettings .. string_Debug_off .. "\n"
-		else
-			currentSettings = currentSettings .. string_Debug_on .. "\n"
-		end
+		--local currentSettings = "Current settings:\n"
+		--
+		--if airThreat == 0 then
+		--	currentSettings = currentSettings .. string_A2A_threat_none .. "\n"
+		--elseif airThreat == 1 then
+		--	currentSettings = currentSettings .. string_A2A_threat_low .. "\n"
+		--elseif airThreat == 2 then
+		--	currentSettings = currentSettings .. string_A2A_threat_medium .. "\n"
+		--elseif airThreat == 3 then
+		--	currentSettings = currentSettings .. string_A2A_threat_high .. "\n"
+		--end
+		--
+		--
+		--if samThreat == 0 then
+		--	currentSettings = currentSettings .. string_SAM_threat_none .. "\n"
+		--elseif samThreat == 1 then
+		--	currentSettings = currentSettings .. string_SAM_threat_low .. "\n"
+		--elseif samThreat == 2 then
+		--	currentSettings = currentSettings .. string_SAM_threat_medium .. "\n"
+		--elseif samThreat == 3 then
+		--	currentSettings = currentSettings .. string_SAM_threat_high .. "\n"
+		--end
+		--
+		--if awacsEnabled == 0 then
+		--	currentSettings = currentSettings .. string_AWACS_off .. "\n"
+		--else
+		--	currentSettings = currentSettings .. string_AWACS_on .. "\n"
+		--end
+		--
+		--if tankerEnabled == 0 then
+		--	currentSettings = currentSettings .. string_Tankers_off .. "\n"
+		--elseif tankerEnabled == 1 then
+		--	currentSettings = currentSettings .. string_Tankers_1 .. "\n"
+		--elseif tankerEnabled == 2 then
+		--	currentSettings = currentSettings .. string_Tankers_2 .. "\n"
+		--end
+		--
+		--currentSettings = currentSettings .. '\n'
+		--
+		--if debuggerEnabled == false then
+		--	currentSettings = currentSettings .. string_Debug_off .. "\n"
+		--else
+		--	currentSettings = currentSettings .. string_Debug_on .. "\n"
+		--end
 		
 		trigger.action.outText(currentSettings, 10)
 		trigger.action.outSound('l10n/DEFAULT/set_bar_01.ogg')
@@ -299,7 +372,7 @@ function SpawnAWACS()
 end
 
 function SpawnDebug()
-	local debugSetting = trigger.misc.getUserFlag(Flag_Debug)
+	local debugSetting = trigger.misc.getUserFlag(Flag_DEBUG)
 	
 	if debugSetting > 0 then
 		Spawn_DebugEages = SPAWN:New( "Debug Eagles" ):Spawn()
@@ -313,9 +386,6 @@ function SpawnSAMs()
 	-- spawn phalanx
 	if samThreat > 0 then
 		trigger.action.outText("Spawning SAMs ... ", 10)
-		
-		--Spawn_Vehicle_1 = SPAWN:New( "IRQ EWR SAM BANDAR LENGEH" )
-		--Spawn_Group_1 = Spawn_Vehicle_1:Spawn()
 		
 		Spawn_SAM_SA11 = SPAWN:New( "IRQ EWR SA-11" ):Spawn()
 		Spawn_SAM_BL = SPAWN:New( "IRQ EWR SAM BANDAR LENGEH" ):Spawn()
@@ -331,19 +401,22 @@ function SpawnSAMs()
 		
 		Spawn_SAM_ENTRY = SPAWN:New( "IRQ EWR SA-2 ENTRY" ):Spawn()
 		
-		
 		if samThreat == 1 then
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" )}
 			Spawn_MAIN_SA2 = SPAWN:New( "IRQ EWR SA-2 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
 			
-		elseif samThreat == 2 then
+		elseif samThreat > 1 then
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" ), ZONE:New( "SamSpawnZone11" ), ZONE:New( "SamSpawnZone12" ) }
 			
 			Spawn_SAM_ISLAND = SPAWN:New( "IRQ EWR SA-2 ISLAND" ):Spawn()
 			Spawn_MAIN_SA10 = SPAWN:New( "IRQ EWR SA-10 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
 			Spawn_AAA = SPAWN:New( "IRQ EWR AAA" ):Spawn()
 			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):Spawn()
-			Spawn_Ship = SPAWN:New( "IRQ EWR HAWK EAST" ):Spawn()
+			Spawn_Ship2 = SPAWN:New( "IRQ EWR HAWK EAST" ):Spawn()
+			
+			if samThreat > 2 then
+				Spawn_MAIN_SA2_2 = SPAWN:New( "IRQ EWR SA-2 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
+			end
 		end
 		
 		trigger.action.outText("Spawn SAMs completed", 10)
@@ -449,16 +522,18 @@ function StartA2ADispatcher()
 						local foundUnitCoalition = foundUnitGroup:GetCoalition()
 						--trigger.action.outText("PING UNIT FOUND", 30)
 						
-						if foundUnit:IsAlive() == true and foundUnitCoalition == coalition.side.BLUE and foundUnit:IsInZone(CCCPBorderZone) then
-							trigger.action.outText("Enemy SAM grid is now active!", 60)
-							bool_blueUnitsDetectedState = true
-							trigger.action.setUserFlag('95', true)
-							
-							Set_EWR:ForEachGroupAlive(
-								function(Set_EWR)
-									Set_EWR:OptionROEOpenFire()
-								end 
-							)
+						if bool_blueUnitsDetectedState == false then
+							if foundUnit:IsAlive() == true and foundUnitCoalition == coalition.side.BLUE and foundUnit:IsInZone(CCCPBorderZone) then
+								trigger.action.outText("Enemy SAM grid is now active!", 60)
+								bool_blueUnitsDetectedState = true
+								trigger.action.setUserFlag('95', true)
+								
+								Set_EWR:ForEachGroupAlive(
+									function(Set_EWR)
+										Set_EWR:OptionROEOpenFire()
+									end 
+								)
+							end
 						end
 					end
 				end
@@ -475,7 +550,7 @@ function StartA2ADispatcher()
 end
 
 function IsDebuggingOn()
-	local debugValue = trigger.misc.getUserFlag(Flag_Debug)
+	local debugValue = trigger.misc.getUserFlag(Flag_DEBUG)
 	if debugValue > 0 then
 		return true
 	else
@@ -484,5 +559,7 @@ function IsDebuggingOn()
 end
 
 -- Create difficulty settings
+table_settingsStore = {}
+bool_firstRunDone = false
 createDifficultySettings()
 
