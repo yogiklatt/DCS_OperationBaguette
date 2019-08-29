@@ -12,7 +12,7 @@ So instead of:
 
 --assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
-it reads:
+it reads like the following (it must point to your local copy of PGOB_scripts.lua):
 
 assert(loadfile("C:\\Users\\[WINDOWS_USERNAME]\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
