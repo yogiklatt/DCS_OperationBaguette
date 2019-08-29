@@ -1,22 +1,24 @@
 # DCS_OperationBaguette
 DCS mission
 
-The mission is currenlty in "editing" mode. In order to export that mission you must do the following:
+The mission is ready to go. For quick editing do the following:
 
 1) Open the mission in DCS World Editor
 2) Open the trigger editor
 3) Go to the second trigger from above (DoMissionSetup)
-4) You need comment out the following line in the Do Script part:
+4) You need comment in the following line in the Do Script part:
 
-So instead of 
-assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
+So instead of:
 
-it reads
 --assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
-The line above needs to be there during LUA scripting as it allow to execute the LUA code without having it embedded in the miz file.
+it reads:
 
-5) Create a new Action in the same trigger "Do Script File" and select PGOB_scripts.lua from this repository. This will then embed the LUA file in the miz file.
+assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
+
+Then remove the contents of the Do Script File part in the same trigger.
+
+The line above needs to be there during LUA scripting as it allow to execute the LUA code without having it embedded in the miz file. If you want to export it properly, you need to reattach it via the Do Script File action.
 
 Remember you can always read all miz contents by opening it with a zip browser.
 
@@ -27,6 +29,21 @@ This mission uses Moose which is embedded in the miz file.
 Once you play the mission, after a second you will get a selection of settings to adapt the difficulty via the F-10 comms menu.
 
 ==================================================================
+
+The main goal of this mission is to destroy a ship and a couple of secondary targets. The mission is setup so that it is possible to play them in different ways, with different difficulty settings and air frames. You can play it completely harmless or with loads of threats around.
+
+Supported slots:
+2x F-14B
+2x F/A-18C
+4x AV-8B N/A
+2x A-10C
+2x M2000C
+2x AJS-37
+1x L-39C (invisible observer)
+
+All planes are only HALF FUELLED UP AND MOSTLY UNARMED! You have quite a long way to go so you should consider taking less fuel and do A2A refuelling.
+
+
 BRIEFING CONTENTS
 Primary and secondary targets have been stated.
 
