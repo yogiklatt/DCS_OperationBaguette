@@ -41,6 +41,8 @@ string_settings_setToMin = 'Set to min difficulty'
 
 bool_blueUnitsDetectedState = false
 
+-- There was some DCS trigger hookup when I tried merge all those handle function ... so I was too lazy to figure what was going wrong.
+-- flagValue was a bigger object with both the flag and its value ... but somehow it then did not properly call setUserFlag ... dont know.
 function handleA2ASetting(flagValue)
 	trigger.action.setUserFlag(Flag_A2A, flagValue)
 	PrintCurrentSettings(true)
