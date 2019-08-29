@@ -1,7 +1,7 @@
 # DCS_OperationBaguette
 DCS mission
 
-In order to export that mission you MUST do the following:
+The mission is currenlty in "editing" mode. In order to export that mission you must do the following:
 
 1) Open the mission in DCS World Editor
 2) Open the trigger editor
