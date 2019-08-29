@@ -24,4 +24,4 @@ The contents of the data folder need to go into the l10n folder of the mission f
 
 This mission uses Moose which is embedded in the miz file.
 
-Once you play the mission, after a second you will get a selection of settings to adapt the difficulty in F-10 comms menu.
+Once you play the mission, after a second you will get a selection of settings to adapt the difficulty via the F-10 comms menu.
