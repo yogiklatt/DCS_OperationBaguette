@@ -15,3 +15,5 @@ You need the above line to do quick LUA script changes, otherwise you'd need rel
 5) Create a new Action in the same trigger "Do Script File" and select PGOB_scripts.lua from this repository. This will then embed the LUA file in the miz file.
 
 Remember you can always read all miz contents by opening it with a zip browser.
+
+The contents of the data folder need to go into the l10n folder of the mission file. So if you update the data here, please embed it in the miz file it's up to date.
