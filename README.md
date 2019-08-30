@@ -28,6 +28,9 @@ This mission uses Moose which is embedded in the miz file.
 
 Once you play the mission, after a second you will get a selection of settings to adapt the difficulty via the F-10 comms menu.
 
+Kneeboard table:
+https://docs.google.com/spreadsheets/d/1rwXwd_w2jNXq68Ji619EvZ9WDkzaay7I0BDykgDsHSk/edit#gid=0
+
 ==================================================================
 
 The main goal of this mission is to destroy a ship and a couple of secondary targets. The mission is setup so that it is possible to play them in different ways, with different difficulty settings and air frames. You can play it completely harmless or with loads of threats around.
