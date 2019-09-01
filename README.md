@@ -1,24 +1,26 @@
 # DCS_OperationBaguette
 DCS mission
 
-The mission is ready to go. For quick editing do the following:
+The mission is ready to go. If you want to edit the actual script file, do the following:
 
 1) Open the mission in DCS World Editor
 2) Open the trigger editor
 3) Go to the second trigger from above (DoMissionSetup)
-4) You need comment in the following line in the Do Script part:
+4) Do the following changes in the Do Script part:
 
 So instead of:
 
---assert(loadfile("C:\\Users\\jklatt\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
+bool_allowDebug = false
+--assert(loadfile("C:\\Users\\yogik\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
-it reads like the following (it must point to your local copy of PGOB_scripts.lua):
+set it to:
 
-assert(loadfile("C:\\Users\\[WINDOWS_USERNAME]\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
+bool_allowDebug = true
+assert(loadfile("C:\\Users\\[USER_NAME]\\Saved Games\\DCS.openbeta\\Missions\\PGOB_scripts.lua"))()
 
-Then remove the contents of the Do Script File part in the same trigger.
+and point it to your local copy of PGOB_scripts.lua.
 
-The line above needs to be there during LUA scripting as it allow to execute the LUA code without having it embedded in the miz file. If you want to export it properly, you need to reattach it via the Do Script File action.
+The line above needs to be there during LUA scripting as it allow to execute the LUA code without having it embedded in the miz file. If you want to export it properly, just reattach the newer script via the Do Script file action in the trigger and then revert the stuff mentioned above.
 
 Remember you can always read all miz contents by opening it with a zip browser.
 
@@ -30,6 +32,9 @@ Once you play the mission, after a second you will get a selection of settings t
 
 Kneeboard table:
 https://docs.google.com/spreadsheets/d/1rwXwd_w2jNXq68Ji619EvZ9WDkzaay7I0BDykgDsHSk/edit#gid=0
+
+Mission images:
+https://drive.google.com/open?id=1BW-ZOhCaGU92djeHpVvfk87p5FSAIPlUi_npKceJd_g
 
 ==================================================================
 
@@ -46,11 +51,34 @@ Supported slots:
 
 All planes are only HALF FUELLED UP AND MOSTLY UNARMED! You have quite a long way to go so you should consider taking less fuel and do A2A refuelling.
 
+SITUATION:
+Your mission is to destroy a boat (either a Yacht or a Molniya) in the harbour of Havadarya.
 
-BRIEFING CONTENTS
+The secondary targets are at the airport of Havadarya:
+1) An ammo store at the southern side of the airport.
+2) A wing of six Chinese J-11 which are parked on the western side of the airport.
+
+Iran's coast is littered with SAMs and an EW system is in place to keep intruders from coming in.
+
+There are several settings you can set to adjust the difficulty and experience for you or your friends. One second after launching the mission, you will see options in the F-10 menu for:
+
+- Air to Air Threat
+- SAM threat
+- Ability of SAMs to target incoming missiles
+- Num of available tankers
+- AWACS Availability
+- Available perks (cruise missile attack or satellite jammer)
+- Type of primary target (Yacht or Warship)
+
+Do not be a dick and choose a single person to do that. Enemy units will be spawned after you selected to start the mission.
+
+Check the kneeboards!
+
+
+BRIEFING:
 Primary and secondary targets have been stated.
 
-Iranian forces will not attack unless you attack first or violate their border (which we totally will do).
+Iranian forces will not attack unless you attack first or violate their border.
 
 The mission will be conducted as followed:
 
@@ -58,7 +86,15 @@ The mission will be conducted as followed:
 
 2) At point Carcajou you have the option to fuel up at the available tankers for the trip to the AO (roughly 150 nm).
 
-3) At your discretion launch a cruise missile strike to knock out the SAMs between waypoints Carcajou and Crossaint (time to impact is roughly 6 to 8 minutes). The code word for the launch is "Baguetterie" (F-10).
+3) At your discretion (if the perks is available) you can via F-10:
+
+- launch a cruise missile attack to take out the SAMs between the waypoints Carcajou and Crossaint as well as the airfield of Bandar Lengeh. The code word for this perk is "Baguetterie".
+
+OR
+
+- launch a one time jammer attack that will temporarily disable any SAMs for two minutes. The code word for this attack is "Fromagerie".
+
+Both attacks are only available if they are selected during the mission setup.
 
 4) Head to the AO. If northbound you might cover behind the mountains north of Havadarya. If south bound be aware of the SAM grid.
 
@@ -95,3 +131,8 @@ J-11s:
 LAT: 27° 9' 29" N
 LONG: 56° 9' 45" E
 ELEV: 30 ft
+
+Bullseye Position:
+Larak Island
+LAT: 26° 51' 19" N
+LONG: 56° 21' 30" E´
