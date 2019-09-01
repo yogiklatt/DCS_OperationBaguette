@@ -617,12 +617,13 @@ function UpdateSamState()
 	local bDebugEnabled = IsDebuggingOn()
 	local boolSamsCanFire = bool_mSamBorderIntact == false and bool_mSamSuppressedByJammers == false
 	
-	if boolSamsCanFire then
-		trigger.action.outText("EWR ROE: new value is true", 60)
-	else
-		trigger.action.outText("EWR ROE: new value is false", 60)
+	if bDebugEnabled == true then
+		if boolSamsCanFire then
+			trigger.action.outText("EWR ROE: new value is true", 60)
+		else
+			trigger.action.outText("EWR ROE: new value is false", 60)
+		end
 	end
-	
 	
 	
 	if boolSamsCanFire == false and bool_mSamsActive == true then
