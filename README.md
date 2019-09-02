@@ -58,6 +58,8 @@ The secondary targets are at the airport of Havadarya:
 1) An ammo store at the southern side of the airport.
 2) A wing of six Chinese J-11 which are parked on the western side of the airport.
 
+Four additional targets of opportunity are marked in the kneeboard.
+
 Iran's coast is littered with SAMs and an EW system is in place to keep intruders from coming in.
 
 There are several settings you can set to adjust the difficulty and experience for you or your friends. One second after launching the mission, you will see options in the F-10 menu for:
@@ -135,4 +137,28 @@ ELEV: 30 ft
 Bullseye Position:
 Larak Island
 LAT: 26° 51' 19" N
-LONG: 56° 21' 30" E´
+LONG: 56° 21' 30" E
+Opportunity targets:
+EWR Site
+LAT: 26° 47' 57" N
+LONG: 55° 05' 47" E
+ELEV: 1526 ft
+
+Mi-8
+Oil Rig 'Pierre's Retreat'
+LAT: 26° 23' 56" N
+LONG: 55° 04' 23" E
+
+Weapon Test Facility 'Count Verquerre'
+LAT: 26° 55' 04" N
+LONG: 55° 16' 30" E
+ELEV: 161 ft
+
+Container ship 'Quanta's Delight'
+LAT: 26° 36' 48" N
+LONG: 54° 58' 06" E
+
+Damaged AWACS 'Heel's Cover'
+LAT: 26° 45' 14" N
+LONG: 55° 53' 42" E
+ELEV: 20 ft
