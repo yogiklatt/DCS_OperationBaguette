@@ -13,6 +13,9 @@ Flag_DEBUG = '69'
 Flag_MISSION_START = '70'
 Flag_PERKS_CRUISE_MISSILE_STRIKE_AVAILABLE = '71'
 Flag_PERKS_JAMMER_ATTACK_AVAILABLE = '72'
+
+-- flags 80 to 89 are reserved for in-editor stuff!
+
 Flag_PERKS_Activate_Cruise_Missile_Strike = '20'
 Flag_PERKS_Activate_Satellite_Jammer = '21'
 Flag_PERKS_Activate_Satellite_Jammer_Active = '22'
