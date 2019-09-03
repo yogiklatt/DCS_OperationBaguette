@@ -38,7 +38,7 @@ string_AWACS_on = 'AWACS available'
 
 string_Tankers_off = 'No tanker'
 string_Tankers_1 = '1 Tanker (Shell 7-1)'
-string_Tankers_2 = '2 Tankers (Shell 7-1, Shell 8-1)'
+string_Tankers_2 = '2 Tankers (Shell 7-1, Texaco 8-1)'
 
 string_Primary_Yacht = 'Yacht (unarmed)'
 string_Primary_Molniya = 'Molniya'
