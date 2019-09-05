@@ -13,6 +13,7 @@ Flag_DEBUG = '69'
 Flag_MISSION_START = '70'
 Flag_PERKS_CRUISE_MISSILE_STRIKE_AVAILABLE = '71'
 Flag_PERKS_JAMMER_ATTACK_AVAILABLE = '72'
+Flag_AWACS_STARTUP = '40'
 
 -- flags 80 to 89 are reserved for in-editor stuff!
 
@@ -60,7 +61,7 @@ string_TANKER_settings = 'Change Tanker setting'
 string_PRIMARY_settings = 'Change Primary Target'
 string_PERK_settings = 'Change Perk settings'
 string_Debug_settings = 'Change Debug setting'
-string_settings_setToMax = 'Set to max difficulty'
+string_settings_setToMax = 'Set max difficulty'
 
 bool_blueUnitsDetectedState = false
 
@@ -309,13 +310,14 @@ function createMissionSettings()
 	
 	CMD_settingsMax = missionCommands.addCommand(string_settings_setToMax, nil, HandleMaxDifficulty)
 	
-	handleA2ASetting(0)
-	handleSAMSetting(0)
+	-- reasonable defaults
+	handleA2ASetting(1)
+	handleSAMSetting(1)
 	handleSamMissileSetting(0)
-	handleAwacsSetting(0)
-	handleTankerSetting(0)
+	handleAwacsSetting(1)
+	handleTankerSetting(2)
 	handlePrimarySetting(0)
-	handlePerkSetting(0)
+	handlePerkSetting(1)
 	
 	if bool_allowDebug == true then
 		Debug_setting = missionCommands.addSubMenu(string_Debug_settings)
@@ -430,8 +432,8 @@ function SpawnAWACS()
 	local awacsSetting = trigger.misc.getUserFlag(Flag_AWACS)
 	
 	if awacsSetting > 0 then
-		Spawn_Tanker1 = SPAWN:New( "BLUE AWACS" ):Spawn()
-		trigger.action.outText("AWACS spawned", 10)
+		trigger.action.setUserFlag(Flag_AWACS_STARTUP, true)
+		trigger.action.outText("AWACS activated", 10)
 	end
 end
 
@@ -441,7 +443,8 @@ function SpawnSAMs()
 	if samThreat > 0 then
 		trigger.action.outText("Spawning SAMs ... ", 10)
 		
-		Spawn_SAM_BL = SPAWN:New( "IRQ EWR SAM BANDAR LENGEH" ):Spawn()
+		local ZoneBandarLengeh = ZONE:New( "ZoneSamBandarLengeh" )
+		Spawn_SAM_BL = SPAWN:New( "IRQ EWR SAM BANDAR LENGEH" ):SpawnInZone(ZoneBandarLengeh)
 		
 		-- Spawn Phalanx
 		Template_SAM_PHALANX = SPAWN:New( "IRQ EWR SA-15 Phalanx" ):InitLimit(12, 0)
@@ -449,12 +452,17 @@ function SpawnSAMs()
 		local PhalanxSpawnZone1 = ZONE:New( "PhalanxSpawn1" )
 		local PhalanxSpawnZone2 = ZONE:New( "PhalanxSpawn2" )
 		local PhalanxSpawnZone3 = ZONE:New( "PhalanxSpawn3" )
+		local PhalanxSpawnZone6 = ZONE:New( "PhalanxSpawn6" )
+		local PhalanxSpawnZone7 = ZONE:New( "PhalanxSpawn7" )
 		
 		SAM_PHALANX1 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone1)
 		SAM_PHALANX2 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone2)
 		SAM_PHALANX3 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone3)
+		SAM_PHALANX6 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone6)
+		SAM_PHALANX7 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone7)
 		
-		Spawn_SAM_ENTRY = SPAWN:New( "IRQ EWR SA-2 ENTRY" ):Spawn()
+		local ZoneEntry = ZONE:New( "ZoneSA2Entry" )
+		Spawn_SAM_ENTRY = SPAWN:New( "IRQ EWR SA-2 ENTRY" ):SpawnInZone(ZoneEntry)
 		
 		if samThreat == 1 then
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" )}
@@ -463,11 +471,19 @@ function SpawnSAMs()
 		elseif samThreat > 1 then
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" ), ZONE:New( "SamSpawnZone11" ), ZONE:New( "SamSpawnZone12" ) }
 			
-			Spawn_SAM_ISLAND = SPAWN:New( "IRQ EWR SA-2 ISLAND" ):Spawn()
+			local ZoneSA2Island = ZONE:New( "ZoneSA2Island" )
+			Spawn_SAM_ISLAND = SPAWN:New( "IRQ EWR SA-2 ISLAND" ):SpawnInZone(ZoneSA2Island)
+			
 			Spawn_MAIN_SA10 = SPAWN:New( "IRQ EWR SA-10 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
-			Spawn_AAA = SPAWN:New( "IRQ EWR AAA" ):Spawn()
-			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):Spawn()
-			Spawn_Ship2 = SPAWN:New( "IRQ EWR HAWK EAST" ):Spawn()
+			
+			local ZoneAAA = ZONE:New( "ZoneAAA" )
+			Spawn_AAA = SPAWN:New( "IRQ EWR AAA" ):SpawnInZone(ZoneAAA)
+			
+			local ZoneShipDefense = Zone:New( "ZoneShipDefense" )
+			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):SpawnInZone(ZoneShipDefense)			
+			
+			local ZoneHawkEast = ZONE:New( "ZoneHawkEast" )
+			Spawn_Ship2 = SPAWN:New( "IRQ EWR HAWK EAST" ):SpawnInZone(ZoneHawkEast)
 			
 			if samThreat > 2 then
 				Spawn_MAIN_SA2_2 = SPAWN:New( "IRQ EWR SA-2 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
