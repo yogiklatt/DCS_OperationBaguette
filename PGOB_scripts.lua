@@ -2,7 +2,8 @@ string_startMission = 'Start mission'
 
 --bool_allowDebug = true // set in editor
 
-Flag_A2A = '60'
+Flag_A2A_DENSITY = '60'
+Flag_A2A_DIFFICULTY = '67'
 Flag_SAM = '61'
 Flag_AWACS = '62'
 Flag_TANKER = '63'
@@ -14,6 +15,7 @@ Flag_MISSION_START = '70'
 Flag_PERKS_CRUISE_MISSILE_STRIKE_AVAILABLE = '71'
 Flag_PERKS_JAMMER_ATTACK_AVAILABLE = '72'
 Flag_AWACS_STARTUP = '40'
+Flag_BLUE_IN_RED_BORDER = '95'
 
 -- flags 80 to 89 are reserved for in-editor stuff!
 
@@ -21,46 +23,60 @@ Flag_PERKS_Activate_Cruise_Missile_Strike = '20'
 Flag_PERKS_Activate_Satellite_Jammer = '21'
 Flag_PERKS_Activate_Satellite_Jammer_Active = '22'
 
-string_A2A_threat_none = 'Air Threat: none'
-string_A2A_threat_low = 'Low A2A Threat (L39)'
-string_A2A_threat_medium = 'Medium A2A Threat (MiG-21, F-4, F-5)'
-string_A2A_threat_high = 'High A2A Threat (MiG-21, MiG-29, F-4, F-5)'
+-- A2A THREAT
+string_A2A_density_settings = 'Change A2A numbers'
+string_A2A_density_none = 'A2A Density: none'
+string_A2A_density_low = 'A2A Density: Low (6 to 10 hostiles)'
+string_A2A_density_medium = 'A2A Density: Medium (10 to 14 hostiles)'
+string_A2A_density_high = 'A2A Density: High (12 to 18 hostiles)'
 
+string_A2A_difficulty_settings = 'Change A2A types'
+string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39)'
+string_A2A_difficulty_fair = 'A2A Difficulty: Fair (F-4, F-5, MiG-21)'
+string_A2A_difficulty_hard = 'A2A Difficulty: Hard (MiG-29, F-4, F-14)'
+
+-- SAAAAAAAAAAAAAAAAms
+string_SAM_settings = 'Change SAM threat setting'
 string_SAM_threat_none = 'No SAM Threat'
 string_SAM_threat_low = 'Low SAM Threat (SA-2, SA-15)'
 string_SAM_threat_medium = 'Medium SAM Threat (SA-2, SA-10, SA-15, AAA, Ships)'
 string_SAM_threat_high = 'High SAM Threat (SA-2, SA-10, SA-15, AAA, Ships)'
 
+string_SAM_engage_missiles_settings = 'Change SAM engage missiles settings'
 string_SAM_engage_missiles_on = 'SAMs engage missiles.'
 string_SAM_engage_missiles_off = 'SAMs will not engage missiles.'
 
+-- AWACS
+string_AWACS_settings = 'Change AWACS setting'
 string_AWACS_off = 'AWACS disabled'
 string_AWACS_on = 'AWACS available'
 
+string_TANKER_settings = 'Change Tanker setting'
 string_Tankers_off = 'No tanker'
-string_Tankers_1 = '1 Tanker (Shell 7-1)'
-string_Tankers_2 = '2 Tankers (Shell 7-1, Texaco 8-1)'
+string_Tankers_west = 'West Tanker (Shell 7-1)'
+string_Tankers_east = 'East Tanker (Texaco 8-1)'
+string_Tankers_both = 'Both Tankers (Shell 7-1, Texaco 8-1)'
 
+-- PRIMARY
+string_PRIMARY_settings = 'Change Primary Target'
 string_Primary_Yacht = 'Yacht (unarmed)'
 string_Primary_Molniya = 'Molniya'
 
+-- PERKS
+string_PERK_settings = 'Change Perk settings'
 string_Perks_none = 'None'
 string_Perks_Cruise_Missiles = 'Cruise missile strike available'
 string_Perks_Jamming_Attack = 'Satellite Jamming Attack'
 
+-- DEBUG
+string_Debug_settings = 'Change Debug setting'
 string_Debug_off = 'Debug info disabled'
 string_Debug_on = 'Debug info enabled (Debug planes will be spawned)'
-string_Debug_spawn_hog = 'Spawn some Hogs!'
-string_Debug_spawn_eagle = 'Spawn some Eagles!'
+string_Debug_spawn_hogs = 'Spawn some Hogs!'
+string_Debug_spawn_harriers = 'Spawn some Harriers!'
+string_Debug_spawn_hornets = 'Spawn some Hornets!'
+string_Debug_spawn_tomcats = 'Spawn some Tomcats!'
 
-string_A2A_settings = 'Change A2A threat setting'
-string_SAM_settings = 'Change SAM threat setting'
-string_SAM_engage_missiles_settings = 'Change SAM engage missiles settings'
-string_AWACS_settings = 'Change AWACS setting'
-string_TANKER_settings = 'Change Tanker setting'
-string_PRIMARY_settings = 'Change Primary Target'
-string_PERK_settings = 'Change Perk settings'
-string_Debug_settings = 'Change Debug setting'
 string_settings_setToMax = 'Set max difficulty'
 
 bool_blueUnitsDetectedState = false
@@ -72,17 +88,32 @@ bool_mSamsActive = true
 
 -- There was some DCS trigger hookup when I tried merge all those handle function ... so I was too lazy to figure what was going wrong.
 -- flagValue was a bigger object with both the flag and its value ... but somehow it then did not properly call setUserFlag ... dont know.
-function handleA2ASetting(flagValue)
-	trigger.action.setUserFlag(Flag_A2A, flagValue)
+function handleA2ADensitySetting(flagValue)
+	trigger.action.setUserFlag(Flag_A2A_DENSITY, flagValue)
 	
 	if flagValue == 0 then
-		table_settingsStore[Flag_A2A] = string_A2A_threat_none
+		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_none
 	elseif flagValue == 1 then
-		table_settingsStore[Flag_A2A] = string_A2A_threat_low
+		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_low
 	elseif flagValue == 2 then
-		table_settingsStore[Flag_A2A] = string_A2A_threat_medium
+		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_medium
 	elseif flagValue == 3 then
-		table_settingsStore[Flag_A2A] = string_A2A_threat_high
+		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_high
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
+	return nil
+end
+
+function handleA2ADifficultySetting(flagValue)
+	trigger.action.setUserFlag(Flag_A2A_DIFFICULTY, flagValue)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_A2A_DIFFICULTY] = string_A2A_difficulty_easy
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_A2A_DIFFICULTY] = string_A2A_difficulty_fair
+	elseif flagValue == 2 then
+		table_settingsStore[Flag_A2A_DIFFICULTY] = string_A2A_difficulty_hard
 	end
 	
 	PrintCurrentSettings(bool_firstRunDone)
@@ -138,9 +169,11 @@ function handleTankerSetting(flagValue)
 	if flagValue == 0 then
 		table_settingsStore[Flag_TANKER] = string_Tankers_off
 	elseif flagValue == 1 then
-		table_settingsStore[Flag_TANKER] = string_Tankers_1
+		table_settingsStore[Flag_TANKER] = string_Tankers_west
 	elseif flagValue == 2 then
-		table_settingsStore[Flag_TANKER] = string_Tankers_2
+		table_settingsStore[Flag_TANKER] = string_Tankers_east
+	elseif flagValue == 3 then
+		table_settingsStore[Flag_TANKER] = string_Tankers_both
 	end
 	
 	PrintCurrentSettings(bool_firstRunDone)
@@ -180,8 +213,18 @@ function HandleDebugHogs()
 	return nil
 end
 
-function HandleDebugEagles()
-	local newSacrifice = Debug_eagle_spawn:Spawn()
+function HandleDebugHarriers()
+	local newSacrifice = Debug_harrier_spawn:Spawn()
+	return nil
+end
+
+function HandleDebugHornets()
+	local newSacrifice = Debug_hornet_spawn:Spawn()
+	return nil
+end
+
+function HandleDebugTomcats()
+	local newSacrifice = Debug_tomcat_spawn:Spawn()
 	return nil
 end
 
@@ -201,11 +244,16 @@ end
 function removeSettings()
 	missionCommands.removeItem(CMD_missionStart)
 	
-	missionCommands.removeItem(A2A_none)
-	missionCommands.removeItem(A2A_low)
-	missionCommands.removeItem(A2A_medium)
-	missionCommands.removeItem(A2A_high)
-	missionCommands.removeItem(A2A_setting)
+	missionCommands.removeItem(A2A_density_none)
+	missionCommands.removeItem(A2A_density_low)
+	missionCommands.removeItem(A2A_density_medium)
+	missionCommands.removeItem(A2A_density_high)
+	missionCommands.removeItem(A2A_density_setting)
+	
+	missionCommands.removeItem(A2A_difficulty_easy)
+	missionCommands.removeItem(A2A_difficulty_fair)
+	missionCommands.removeItem(A2A_difficulty_hard)
+	missionCommands.removeItem(A2A_difficulty_setting)
 	
 	missionCommands.removeItem(SAM_none)
 	missionCommands.removeItem(SAM_low)
@@ -223,7 +271,9 @@ function removeSettings()
 	
 	missionCommands.removeItem(TANKER_off)
 	missionCommands.removeItem(TANKER_1)
-	missionCommands.removeItem(TANKER_2)
+	missionCommands.removeItem(TANKER_west)
+	missionCommands.removeItem(TANKER_east)
+	missionCommands.removeItem(TANKER_all)
 	missionCommands.removeItem(TANKER_setting)
 	
 	missionCommands.removeItem(PRIMARY_Yacht)
@@ -239,7 +289,7 @@ function removeSettings()
 	missionCommands.removeItem(Debug_on)
 	missionCommands.removeItem(Debug_setting)
 	
-	missionCommands.removeItem(CMD_settingsMax)
+	--missionCommands.removeItem(CMD_settingsMax)
 	return nil
 end
 
@@ -250,18 +300,22 @@ function HandleStart()
 	-- add ability to spawn some poor plane to be shot down
 	if IsDebuggingOn() then
 		
-		Debug_hog_spawn = SPAWN:New( "Debug_Hogs" ):InitLimit(12,0)
-		Debug_eagle_spawn = SPAWN:New( "Debug_Eagles" ):InitLimit(12,0)
+		Debug_hog_spawn = SPAWN:New( "Z - Debug - Hogs" ):InitLimit(12,0)
+		Debug_harrier_spawn = SPAWN:New( "Z - Debug - Harriers" ):InitLimit(12,0)
+		Debug_hornet_spawn = SPAWN:New( "Z - Debug - Hornets" ):InitLimit(12,0)
+		Debug_tomcat_spawn = SPAWN:New( "Z - Debug - Tomcats" ):InitLimit(12,0)
 		
-		CMD_DebugSpawnCommandHogs =  missionCommands.addCommand(string_Debug_spawn_hog, nil, HandleDebugHogs)
-		CMD_DebugSpawnCommandEagles = missionCommands.addCommand(string_Debug_spawn_eagle, nil, HandleDebugEagles)
+		CMD_DebugSpawnCommandHogs =  missionCommands.addCommand(string_Debug_spawn_hogs, nil, HandleDebugHogs)
+		CMD_DebugSpawnCommandHarriers = missionCommands.addCommand(string_Debug_spawn_harriers, nil, HandleDebugHarriers)
+		CMD_DebugSpawnCommandHornets =  missionCommands.addCommand(string_Debug_spawn_hornets, nil, HandleDebugHornets)
+		CMD_DebugSpawnCommandTomcats = missionCommands.addCommand(string_Debug_spawn_tomcats, nil, HandleDebugTomcats)
 	end
 end
 
 function HandleMaxDifficulty()
 	trigger.action.outText("Settings changed to max difficulty", 10)
 	bool_firstRunDone = false
-	handleA2ASetting(3)
+	handleA2ADensitySetting(3)
 	handleSAMSetting(3)
 	handleSamMissileSetting(1)
 	handleAwacsSetting(0)
@@ -274,11 +328,16 @@ end
 function createMissionSettings()
 	CMD_missionStart = missionCommands.addCommand(string_startMission, nil, HandleStart)
 	
-	A2A_setting = missionCommands.addSubMenu(string_A2A_settings)
-	A2A_none = missionCommands.addCommand(string_A2A_threat_none, A2A_setting, handleA2ASetting, 0)
-	A2A_low = missionCommands.addCommand(string_A2A_threat_low, A2A_setting, handleA2ASetting, 1)
-	A2A_medium = missionCommands.addCommand(string_A2A_threat_medium, A2A_setting, handleA2ASetting, 2)
-	A2A_high = missionCommands.addCommand(string_A2A_threat_high, A2A_setting, handleA2ASetting, 3)
+	A2A_density_setting = missionCommands.addSubMenu(string_A2A_density_settings)
+	A2A_density_none = missionCommands.addCommand(string_A2A_density_none, A2A_density_setting, handleA2ADensitySetting, 0)
+	A2A_density_low = missionCommands.addCommand(string_A2A_density_low, A2A_density_setting, handleA2ADensitySetting, 1)
+	A2A_density_medium = missionCommands.addCommand(string_A2A_density_medium, A2A_density_setting, handleA2ADensitySetting, 2)
+	A2A_density_high = missionCommands.addCommand(string_A2A_density_high, A2A_density_setting, handleA2ADensitySetting, 3)
+	
+	A2A_difficulty_setting = missionCommands.addSubMenu(string_A2A_difficulty_settings)
+	A2A_difficulty_easy = missionCommands.addCommand(string_A2A_difficulty_easy, A2A_difficulty_setting, handleA2ADifficultySetting, 0)
+	A2A_difficulty_fair = missionCommands.addCommand(string_A2A_difficulty_fair, A2A_difficulty_setting, handleA2ADifficultySetting, 1)
+	A2A_difficulty_hard = missionCommands.addCommand(string_A2A_difficulty_hard, A2A_difficulty_setting, handleA2ADifficultySetting, 2)
 	
 	SAM_setting = missionCommands.addSubMenu(string_SAM_settings)
 	SAM_none = missionCommands.addCommand(string_SAM_threat_none, SAM_setting, handleSAMSetting, 0)
@@ -296,8 +355,9 @@ function createMissionSettings()
 	
 	TANKER_setting = missionCommands.addSubMenu(string_TANKER_settings)
 	TANKER_off = missionCommands.addCommand(string_Tankers_off, TANKER_setting, handleTankerSetting, 0)
-	TANKER_1 = missionCommands.addCommand(string_Tankers_1, TANKER_setting, handleTankerSetting, 1)
-	TANKER_2 = missionCommands.addCommand(string_Tankers_2, TANKER_setting, handleTankerSetting, 2)
+	TANKER_west = missionCommands.addCommand(string_Tankers_west, TANKER_setting, handleTankerSetting, 1)
+	TANKER_east = missionCommands.addCommand(string_Tankers_east, TANKER_setting, handleTankerSetting, 2)
+	TANKER_all = missionCommands.addCommand(string_Tankers_both, TANKER_setting, handleTankerSetting, 3)
 	
 	PRIMARY_setting = missionCommands.addSubMenu(string_PRIMARY_settings)
 	PRIMARY_Yacht = missionCommands.addCommand(string_Primary_Yacht, PRIMARY_setting, handlePrimarySetting, 0)
@@ -308,14 +368,15 @@ function createMissionSettings()
 	PERKS_Cruise_Missiles = missionCommands.addCommand(string_Perks_Cruise_Missiles, PERKS_setting, handlePerkSetting, 1)
 	PERKS_Jammer_Attack = missionCommands.addCommand(string_Perks_Jamming_Attack, PERKS_setting, handlePerkSetting, 2)
 	
-	CMD_settingsMax = missionCommands.addCommand(string_settings_setToMax, nil, HandleMaxDifficulty)
+	--CMD_settingsMax = missionCommands.addCommand(string_settings_setToMax, nil, HandleMaxDifficulty)
 	
 	-- reasonable defaults
-	handleA2ASetting(1)
+	handleA2ADensitySetting(1)
+	handleA2ADifficultySetting(0)
 	handleSAMSetting(1)
 	handleSamMissileSetting(0)
 	handleAwacsSetting(1)
-	handleTankerSetting(2)
+	handleTankerSetting(3)
 	handlePrimarySetting(0)
 	handlePerkSetting(1)
 	
@@ -333,18 +394,28 @@ end
 -- a bit too convoluted. Let us just create a lookup table for that later.
 function PrintCurrentSettings(executePrint)
 	if executePrint then
-		local airThreat = trigger.misc.getUserFlag(Flag_A2A)
-		local samThreat = trigger.misc.getUserFlag(Flag_SAM)
-		local awacsEnabled = trigger.misc.getUserFlag(Flag_AWACS)
-		local tankerEnabled = trigger.misc.getUserFlag(Flag_TANKER)
-		local debuggerEnabled = IsDebuggingOn()
-		
 		local currentSettings = "Current settings:\n"
+		
+		--currentSettings = currentSettings .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_SAM] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_SAM_MISSILES] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_PRIMARY] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_AWACS] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_TANKER] .. "\n"
+		--currentSettings = currentSettings .. table_settingsStore[Flag_PERKS] .. "\n"
+		--
+		--if bool_allowDebug == true
+		--	currentSettings = currentSettings .. table_settingsStore[Flag_DEBUG] .. "\n"
+		--end
+		--local testString = 'dddd' .. currentSettings[Flag_A2A_DENSITY]
+		--trigger.action.outText(testString, 20)
 		
 		for key,value in pairs(table_settingsStore) do 
 			currentSettings = currentSettings .. key .. ': ' .. value .. "\n"
 		end
-		trigger.action.outText(currentSettings, 10)
+		
+		trigger.action.outText(currentSettings, 20)
 		trigger.action.outSound('l10n/DEFAULT/set_bar_01.ogg')
 	end
 	
@@ -352,9 +423,9 @@ function PrintCurrentSettings(executePrint)
 end
 
 function StartBandarLengehCAP_L39()
-	local airThreat = trigger.misc.getUserFlag(Flag_A2A)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
 
-	if airThreat == 1 then
+	if airDensity == 1 then
 		BandarCapPlaneL39 = GROUP:FindByName( "IRQ SQ L39 Bandar Lengeh" )
 		
 		BandarLengehL39PatrolZone = ZONE:New( "Mig21PatrolZone" )
@@ -373,9 +444,10 @@ function StartBandarLengehCAP_L39()
 end
 
 function StartBandarLengehCAP_MIG21()
-	local airThreat = trigger.misc.getUserFlag(Flag_A2A)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
-	if airThreat > 1 then
+	if airDensity > 1 and airDifficulty > 0 then
 		BandarCapPlaneMiG21 = GROUP:FindByName( "IRQ SQ MIG21 Bandar Lengeh" )
 		
 		BandarLengehMig21PatrolZone = ZONE:New( "Mig21PatrolZone" )
@@ -394,9 +466,10 @@ function StartBandarLengehCAP_MIG21()
 end
 
 function StartQueshmIslandCAP()
-	local airThreat = trigger.misc.getUserFlag(Flag_A2A)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
-	if airThreat < 2 then
+	if airDensity < 2 and airDifficulty > 0 then
 		return nil
 	end
 
@@ -416,14 +489,14 @@ end
 function SpawnTankers()
 	local tankerSetting = trigger.misc.getUserFlag(Flag_TANKER)
 	
-	if tankerSetting > 0 then
-		Spawn_Tanker1 = SPAWN:New( "TankerShell7" ):Spawn()
-		trigger.action.outText("Tanker spawned", 10)
+	if tankerSetting == 1 or tankerSetting == 3 then
+		Spawn_Tanker1 = SPAWN:New( "TankerShell" ):Spawn()
+		trigger.action.outText("Tanker Shell (west) spawned", 10)
 	end
 	
-	if tankerSetting > 1 then
-		Spawn_Tanker2 = SPAWN:New( "TankerShell8" ):Spawn()
-		trigger.action.outText("Tankers spawned", 10)
+	if tankerSetting == 2 or tankerSetting == 3 then
+		Spawn_Tanker2 = SPAWN:New( "TankerTexaco" ):Spawn()
+		trigger.action.outText("Tanker Texaco (east) spawned", 10)
 	end
 	return nil
 end
@@ -509,12 +582,12 @@ end
 
 function SetupEWRNetwork()
 	trigger.action.outText("Checking Detection Network", 10)
-	local airThreat = trigger.misc.getUserFlag(Flag_A2A)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
 	local samThreat = trigger.misc.getUserFlag(Flag_SAM)
 	local debuggerEnabled = IsDebuggingOn()
 	bBlueInRedZone = false
 	
-	if airThreat > 0 or samThreat > 0 then
+	if airDensity > 0 or samThreat > 0 then
 		DetectionSetGroup = SET_GROUP:New()
 		DetectionSetGroup:FilterPrefixes( { "IRQ EWR", "IRQ AWACS", "IRQ SQ" } )
 		DetectionSetGroup:FilterStart()
@@ -527,63 +600,127 @@ function SetupEWRNetwork()
 		
 		CCCPBorderZone = ZONE_POLYGON:New( "IRQ Border", GROUP:FindByName( "IRQ Border" ) )
 		
-		if airThreat > 0 then
+		if airDensity > 0 then
+			local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)	
+		
 			A2ADispatcher = AI_A2A_DISPATCHER:New( Detection )
-			local squadronCapacity = 0
-			local interceptDelay = 0
-			local overhead = 0
-			local fighterType = ""
-			
-			-- pick L39 or F4
-			if airThreat == 1 then
-				squadronCapacity = 2
-				interceptDelay = 300
-				overhead = 1
-				fighterType = "IRQ SQ L39"
-			else
-				squadronCapacity = 4
-				interceptDelay = 150
-				overhead = 1.0
-				fighterType = "IRQ SQ F4"
-			end
-			
-			-- on very hard we additionally have a MIG29 CAP squad
-			if airThreat > 2 then
-				-- additional MIG29 squadron
-				--A2ADispatcher:SetSquadron("IRFMIG29", AIRBASE.PersianGulf.Qeshm_Island, {"IRQ SQ MIG29"}, 4 )
-				A2ADispatcher:SetSquadron("IRFMIG29", AIRBASE.PersianGulf.Havadarya, {"IRQ SQ MIG29"}, 4 )
-				A2ADispatcher:SetSquadronOverhead( "IRFMIG29", 1 )
-				CapZoneSouth = ZONE_POLYGON:New( "IRQ CAP ZONE", GROUP:FindByName( "IRQ CAP ZONE" ) )
-				A2ADispatcher:SetSquadronTakeoffFromParkingHot( "IRFMIG29" )
-				A2ADispatcher:SetSquadronGci( "IRFMIG29", 400, 800 )
-				A2ADispatcher:SetSquadronGrouping( "IRFMIG29", 2 )
-				A2ADispatcher:SetSquadronCap( "IRFMIG29", CapZoneSouth, 8000, 15000, 200, 400, 400, 700, "BARO" )
-				A2ADispatcher:SetSquadronCapInterval( "IRFMIG29", 1, 30, 120, 1 )
-				
-				-- additional interceptors from LAR --> IRQ SQ IF4
-				A2ADispatcher:SetSquadron("IRF4Intercept", AIRBASE.PersianGulf.Lar_Airbase, "IRQ SQ IF4", 2 )
-				A2ADispatcher:SetIntercept( 120 )
-				A2ADispatcher:SetSquadronOverhead( "IRF4Intercept", 2 )
-				A2ADispatcher:SetBorderZone( CCCPBorderZone )
-				A2ADispatcher:SetSquadronTakeoffFromParkingCold( "IRF4Intercept" )
-				A2ADispatcher:SetSquadronGci( "IRF4Intercept", 300, 800 )
-				A2ADispatcher:SetSquadronGrouping( "IRF4Intercept", 2 )
-			end
-			
-			A2ADispatcher:SetSquadron("IRF5", AIRBASE.PersianGulf.Bandar_Abbas_Intl, {fighterType}, squadronCapacity )
-			A2ADispatcher:SetIntercept( interceptDelay )
-			A2ADispatcher:SetSquadronOverhead( "IRF5", overhead )
 			A2ADispatcher:SetBorderZone( CCCPBorderZone )
-			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "IRF5" )
-			A2ADispatcher:SetSquadronGci( "IRF5", 300, 800 )
-			A2ADispatcher:SetSquadronGrouping( "IRF5", 2 )
+			
+			-- DENSITY													AIRFRAME
+			-- three air bases:		Low			Medium		High	| Easy				fair				Hard
+			-- Bandar Abbas			2			4			4       | 
+			-- Havadarya			2			2			4       | 
+			-- Lar AIRBASE			2			4			8       | 
+			
+			-- DIFFICULTY
+			-- Bandar Abbas:
+			----	Easy:	IRQ SQ Easy BandarAbbas L39
+			----	Fair:	IRQ SQ Fair BandarAbbas F4, IRQ SQ Fair BandarAbbas F5, IRQ SQ Fair BandarAbbas MiG21
+			----	Hard:	IRQ SQ Hard BandarAbbas F4, IRQ SQ Hard BandarAbbas MiG29, IRQ SQ Hard BandarAbbas F14
+			
+			-- Havadarya:
+			----	Easy:	IRQ SQ Easy Havadarya L39
+			----	Fair:	IRQ SQ Fair Havadarya F4, IRQ SQ Fair Havadarya MiG21
+			----	Hard:	IRQ SQ Hard Havadarya MiG29, IRQ SQ Hard Havadarya F4
+			
+			-- Lar AIRBASE:
+			----	Easy:	IRQ SQ Easy Lar L39
+			----	Fair:	IRQ SQ Fair Lar F4, IRQ SQ Fair Lar F4
+			----	Hard:	IRQ SQ Hard Lar F14, IRQ SQ Hard Lar F14
+			
+			-- set up Lar
+			
+			local larPlanesCount = 0
+			local larPlanesTypes = {}
+			if airDensity == 1 then
+				larPlanesCount = 2
+			elseif airDensity == 2 then
+				larPlanesCount = 4
+			elseif airDensity == 3 then
+				larPlanesCount = 8
+			end
+			
+			if airDifficulty == 0 then
+				larPlanesTypes = { "IRQ SQ Easy Lar L39" }
+			elseif airDifficulty == 1 then
+				larPlanesTypes = { "IRQ SQ Fair Lar F4", "IRQ SQ Fair Lar F4" }
+			elseif airDifficulty == 2 then
+				larPlanesTypes = { "IRQ SQ Hard Lar F14", "IRQ SQ Hard Lar F14" }
+			end
+			
+			A2ADispatcher:SetSquadron("LarAirbaseSq", AIRBASE.PersianGulf.Lar_Airbase, larPlanesTypes, larPlanesCount )
+			A2ADispatcher:SetIntercept( 120 )
+			A2ADispatcher:SetSquadronOverhead( "LarAirbaseSq", 1 )
+			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "LarAirbaseSq" )
+			A2ADispatcher:SetSquadronGci( "LarAirbaseSq", 300, 600 )
+			A2ADispatcher:SetSquadronGrouping( "LarAirbaseSq", 2 )
+			
+			local havadaryaPlanesCount = 0
+			local havadaryaPlanesTypes = {}
+			
+			if airDensity == 1 then
+				havadaryaPlanesCount = 2
+			elseif airDensity == 2 then
+				havadaryaPlanesCount = 2
+			elseif airDensity == 3 then
+				havadaryaPlanesCount = 4
+			end
+			
+			if airDifficulty == 0 then
+				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39" }
+			elseif airDifficulty == 1 then
+				havadaryaPlanesTypes = { "IRQ SQ Fair Havadarya F4", "IRQ SQ Fair Havadarya MiG21" }
+			elseif airDifficulty == 2 then
+				havadaryaPlanesTypes = { "IRQ SQ Hard Havadarya MiG29", "IRQ SQ Hard Havadarya F4" }
+			end
+			
+			A2ADispatcher:SetSquadron("HavadaryaAirbaseSq", AIRBASE.PersianGulf.Havadarya, havadaryaPlanesTypes, havadaryaPlanesCount )
+			A2ADispatcher:SetIntercept( 90 )
+			A2ADispatcher:SetSquadronOverhead( "HavadaryaAirbaseSq", 1 )
+			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "HavadaryaAirbaseSq" )
+			A2ADispatcher:SetSquadronGci( "HavadaryaAirbaseSq", 300, 800 )
+			A2ADispatcher:SetSquadronGrouping( "HavadaryaAirbaseSq", 2 )
+			
+			-- setup CAP for havadarya on hard difficulty
+			if airDensity == 3 then
+				CapZoneSouth = ZONE_POLYGON:New( "IRQ CAP ZONE", GROUP:FindByName( "IRQ CAP ZONE" ) )
+				A2ADispatcher:SetSquadronCap( "HavadaryaAirbaseSq", CapZoneSouth, 8000, 15000, 200, 400, 400, 700, "BARO" )
+				A2ADispatcher:SetSquadronCapInterval( "HavadaryaAirbaseSq", 100, 300, 120, 1 )
+			end
+			
+			local bandarAbbasPlanesCount = 0
+			local bandarAbbasPlanesTypes = {}
+			
+			if airDensity == 1 then
+				bandarAbbasPlanesCount = 2
+			elseif airDensity == 2 then
+				bandarAbbasPlanesCount = 4
+			elseif airDensity == 2 then
+				bandarAbbasPlanesCount = 4
+			end
+			
+			if airDifficulty == 0 then
+				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39" }
+			elseif airDifficulty == 1 then
+				bandarAbbasPlanesTypes = { "IRQ SQ Fair BandarAbbas F4", "IRQ SQ Fair BandarAbbas F5", "IRQ SQ Fair BandarAbbas MiG21" }
+			elseif airDifficulty == 2 then
+				bandarAbbasPlanesTypes = { "IRQ SQ Hard BandarAbbas F4", "IRQ SQ Hard BandarAbbas MiG29", "IRQ SQ Hard BandarAbbas F14" }
+			end
+			
+			A2ADispatcher:SetSquadron("BandarAbbasAirbaseSq", AIRBASE.PersianGulf.Bandar_Abbas_Intl, bandarAbbasPlanesTypes, bandarAbbasPlanesCount )
+			A2ADispatcher:SetIntercept( 120 )
+			A2ADispatcher:SetSquadronOverhead( "BandarAbbasAirbaseSq", 1 )
+			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "BandarAbbasAirbaseSq" )
+			A2ADispatcher:SetSquadronGci( "BandarAbbasAirbaseSq", 300, 800 )
+			A2ADispatcher:SetSquadronGrouping( "BandarAbbasAirbaseSq", 2 )
+						
 			A2ADispatcher:SetTacticalDisplay( debuggerEnabled )
 			A2ADispatcher:SetDefaultTakeoffFromParkingCold()
 			A2ADispatcher:SetDefaultLandingAtEngineShutdown()
 			A2ADispatcher:SetDefaultFuelThreshold( 0.20 )
 			A2ADispatcher:SetDisengageRadius( 250000 )
 			A2ADispatcher:SetEngageRadius( 100000 )
-			--A2ADispatcher:SetGciRadius( 200000 )
+			A2ADispatcher:SetGciRadius( 100000 )
 			A2ADispatcher:Start()
 		else
 			Detection:Start()
@@ -603,8 +740,8 @@ function SetupEWRNetwork()
 						
 						if bool_blueUnitsDetectedState == false then
 							if foundUnit:IsAlive() == true and foundUnitCoalition == coalition.side.BLUE and foundUnit:IsInZone(CCCPBorderZone) then
-								--trigger.action.outText("Enemy SAM grid is now active!", 60)
-								trigger.action.setUserFlag('95', true)
+								trigger.action.outText("Enemy SAM grid is now active!", 60)
+								trigger.action.setUserFlag(Flag_BLUE_IN_RED_BORDER, true)
 								bool_mSamBorderIntact = false
 								bool_blueUnitsDetectedState = true
 								UpdateSamState()
