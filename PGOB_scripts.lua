@@ -469,7 +469,7 @@ function StartQueshmIslandCAP()
 	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
 	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
-	if airDensity < 2 and airDifficulty > 0 then
+	if airDensity < 2 and airDifficulty < 1 then
 		return nil
 	end
 
