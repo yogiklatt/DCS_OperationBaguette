@@ -30,8 +30,8 @@ This mission uses Moose which is embedded in the miz file.
 
 Once you play the mission, after a second you will get a selection of settings to adapt the difficulty via the F-10 comms menu.
 
-Kneeboard table:
-https://docs.google.com/spreadsheets/d/1rwXwd_w2jNXq68Ji619EvZ9WDkzaay7I0BDykgDsHSk/edit#gid=0
+Kneeboard tables from:
+https://docs.google.com/spreadsheets/d/1MGewIBykeAxEr6S60QLxpHjtg_HQGMwH-Ylydmfb3lQ/edit#gid=763061796
 
 Mission images:
 https://drive.google.com/open?id=1BW-ZOhCaGU92djeHpVvfk87p5FSAIPlUi_npKceJd_g
