@@ -59,8 +59,10 @@ string_Tankers_both = 'Both Tankers (Shell 7-1, Texaco 8-1)'
 
 -- PRIMARY
 string_PRIMARY_settings = 'Change Primary Target'
-string_Primary_Yacht = 'Yacht (unarmed)'
-string_Primary_Molniya = 'Molniya'
+string_Primary_Yacht = 'Yacht (moving)'
+string_Primary_Yacht_Static = 'Yacht (stationary)'
+string_Primary_Molniya = 'Molniya (moving)'
+string_Primary_Molniya_Static = 'Molniya (stationary)'
 
 -- PERKS
 string_PERK_settings = 'Change Perk settings'
@@ -186,7 +188,11 @@ function handlePrimarySetting(flagValue)
 	if flagValue == 0 then
 		table_settingsStore[Flag_PRIMARY] = string_Primary_Yacht
 	elseif flagValue == 1 then
+		table_settingsStore[Flag_PRIMARY] = string_Primary_Yacht_Static
+	elseif flagValue == 2 then
 		table_settingsStore[Flag_PRIMARY] = string_Primary_Molniya
+	elseif flagValue == 3 then
+		table_settingsStore[Flag_PRIMARY] = string_Primary_Molniya_Static
 	end
 	
 	PrintCurrentSettings(bool_firstRunDone)
@@ -277,7 +283,9 @@ function removeSettings()
 	missionCommands.removeItem(TANKER_setting)
 	
 	missionCommands.removeItem(PRIMARY_Yacht)
+	missionCommands.removeItem(PRIMARY_Yacht_Static)
 	missionCommands.removeItem(PRIMARY_Molniya)
+	missionCommands.removeItem(PRIMARY_Molniya_Static)
 	missionCommands.removeItem(PRIMARY_setting)
 	
 	missionCommands.removeItem(PERKS_None)
@@ -361,7 +369,9 @@ function createMissionSettings()
 	
 	PRIMARY_setting = missionCommands.addSubMenu(string_PRIMARY_settings)
 	PRIMARY_Yacht = missionCommands.addCommand(string_Primary_Yacht, PRIMARY_setting, handlePrimarySetting, 0)
-	PRIMARY_Molniya = missionCommands.addCommand(string_Primary_Molniya, PRIMARY_setting, handlePrimarySetting, 1)
+	PRIMARY_Yacht_Static = missionCommands.addCommand(string_Primary_Yacht_Static, PRIMARY_setting, handlePrimarySetting, 1)
+	PRIMARY_Molniya = missionCommands.addCommand(string_Primary_Molniya, PRIMARY_setting, handlePrimarySetting, 2)
+	PRIMARY_Molniya_Static = missionCommands.addCommand(string_Primary_Molniya_Static, PRIMARY_setting, handlePrimarySetting, 3)
 	
 	PERKS_setting = missionCommands.addSubMenu(string_PERK_settings)
 	PERKS_None = missionCommands.addCommand(string_Perks_none, PERKS_setting, handlePerkSetting, 0)
