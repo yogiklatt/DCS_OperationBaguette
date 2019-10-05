@@ -9,12 +9,14 @@ Flag_AWACS = '62'
 Flag_TANKER = '63'
 Flag_PRIMARY = '64'
 Flag_PERKS = '65'
+Flag_AWACS_RED = '68'
 Flag_SAM_MISSILES = '66'
 Flag_DEBUG = '69'
 Flag_MISSION_START = '70'
 Flag_PERKS_CRUISE_MISSILE_STRIKE_AVAILABLE = '71'
 Flag_PERKS_JAMMER_ATTACK_AVAILABLE = '72'
 Flag_AWACS_STARTUP = '40'
+Flag_AWACS_RED_STARTUP = '41'
 Flag_BLUE_IN_RED_BORDER = '95'
 
 -- flags 80 to 89 are reserved for in-editor stuff!
@@ -47,9 +49,13 @@ string_SAM_engage_missiles_on = 'SAMs engage missiles.'
 string_SAM_engage_missiles_off = 'SAMs will not engage missiles.'
 
 -- AWACS
-string_AWACS_settings = 'Change AWACS setting'
-string_AWACS_off = 'AWACS disabled'
-string_AWACS_on = 'AWACS available'
+string_AWACS_settings = 'Change Blue AWACS setting'
+string_AWACS_off = 'Blue AWACS disabled'
+string_AWACS_on = 'Blue AWACS available'
+
+string_AWACS_RED_settings = 'Change Red AWACS setting'
+string_AWACS_RED_off = 'Red AWACS disabled'
+string_AWACS_RED_on = 'Red AWACS available'
 
 string_TANKER_settings = 'Change Tanker setting'
 string_Tankers_off = 'No tanker'
@@ -59,10 +65,8 @@ string_Tankers_both = 'Both Tankers (Shell 7-1, Texaco 8-1)'
 
 -- PRIMARY
 string_PRIMARY_settings = 'Change Primary Target'
-string_Primary_Yacht = 'Yacht (moving)'
-string_Primary_Yacht_Static = 'Yacht (stationary)'
-string_Primary_Molniya = 'Molniya (moving)'
-string_Primary_Molniya_Static = 'Molniya (stationary)'
+string_Primary_Yacht = 'Yacht (unarmed)'
+string_Primary_Molniya = 'Molniya'
 
 -- PERKS
 string_PERK_settings = 'Change Perk settings'
@@ -165,6 +169,19 @@ function handleAwacsSetting(flagValue)
 	return nil
 end
 
+function handleAwacsRedSetting(flagValue)
+	trigger.action.setUserFlag(Flag_AWACS_RED, flagValue)
+	
+	if flagValue == 0 then
+		table_settingsStore[Flag_AWACS_RED] = string_AWACS_RED_off
+	elseif flagValue == 1 then
+		table_settingsStore[Flag_AWACS_RED] = string_AWACS_RED_on
+	end
+	
+	PrintCurrentSettings(bool_firstRunDone)
+	return nil
+end
+
 function handleTankerSetting(flagValue)
 	trigger.action.setUserFlag(Flag_TANKER, flagValue)
 	
@@ -188,11 +205,7 @@ function handlePrimarySetting(flagValue)
 	if flagValue == 0 then
 		table_settingsStore[Flag_PRIMARY] = string_Primary_Yacht
 	elseif flagValue == 1 then
-		table_settingsStore[Flag_PRIMARY] = string_Primary_Yacht_Static
-	elseif flagValue == 2 then
 		table_settingsStore[Flag_PRIMARY] = string_Primary_Molniya
-	elseif flagValue == 3 then
-		table_settingsStore[Flag_PRIMARY] = string_Primary_Molniya_Static
 	end
 	
 	PrintCurrentSettings(bool_firstRunDone)
@@ -275,6 +288,10 @@ function removeSettings()
 	missionCommands.removeItem(AWACS_on)
 	missionCommands.removeItem(AWACS_setting)
 	
+	missionCommands.removeItem(AWACS_Red_off)
+	missionCommands.removeItem(AWACS_Red_on)
+	missionCommands.removeItem(AWACS_Red_setting)
+	
 	missionCommands.removeItem(TANKER_off)
 	missionCommands.removeItem(TANKER_1)
 	missionCommands.removeItem(TANKER_west)
@@ -283,9 +300,7 @@ function removeSettings()
 	missionCommands.removeItem(TANKER_setting)
 	
 	missionCommands.removeItem(PRIMARY_Yacht)
-	missionCommands.removeItem(PRIMARY_Yacht_Static)
 	missionCommands.removeItem(PRIMARY_Molniya)
-	missionCommands.removeItem(PRIMARY_Molniya_Static)
 	missionCommands.removeItem(PRIMARY_setting)
 	
 	missionCommands.removeItem(PERKS_None)
@@ -327,6 +342,7 @@ function HandleMaxDifficulty()
 	handleSAMSetting(3)
 	handleSamMissileSetting(1)
 	handleAwacsSetting(0)
+	handleAwacsRedSetting(0)
 	handlePrimarySetting(1)
 	handlePerkSetting(0)
 	bool_firstRunDone = true
@@ -361,6 +377,10 @@ function createMissionSettings()
 	AWACS_off = missionCommands.addCommand(string_AWACS_off, AWACS_setting, handleAwacsSetting, 0)
 	AWACS_on = missionCommands.addCommand(string_AWACS_on, AWACS_setting, handleAwacsSetting, 1)
 	
+	AWACS_Red_setting = missionCommands.addSubMenu(string_AWACS_RED_settings)
+	AWACS_Red_off = missionCommands.addCommand(string_AWACS_RED_off, AWACS_Red_setting, handleAwacsRedSetting, 0)
+	AWACS_Red_on = missionCommands.addCommand(string_AWACS_RED_on, AWACS_Red_setting, handleAwacsRedSetting, 1)
+	
 	TANKER_setting = missionCommands.addSubMenu(string_TANKER_settings)
 	TANKER_off = missionCommands.addCommand(string_Tankers_off, TANKER_setting, handleTankerSetting, 0)
 	TANKER_west = missionCommands.addCommand(string_Tankers_west, TANKER_setting, handleTankerSetting, 1)
@@ -369,9 +389,7 @@ function createMissionSettings()
 	
 	PRIMARY_setting = missionCommands.addSubMenu(string_PRIMARY_settings)
 	PRIMARY_Yacht = missionCommands.addCommand(string_Primary_Yacht, PRIMARY_setting, handlePrimarySetting, 0)
-	PRIMARY_Yacht_Static = missionCommands.addCommand(string_Primary_Yacht_Static, PRIMARY_setting, handlePrimarySetting, 1)
-	PRIMARY_Molniya = missionCommands.addCommand(string_Primary_Molniya, PRIMARY_setting, handlePrimarySetting, 2)
-	PRIMARY_Molniya_Static = missionCommands.addCommand(string_Primary_Molniya_Static, PRIMARY_setting, handlePrimarySetting, 3)
+	PRIMARY_Molniya = missionCommands.addCommand(string_Primary_Molniya, PRIMARY_setting, handlePrimarySetting, 1)
 	
 	PERKS_setting = missionCommands.addSubMenu(string_PERK_settings)
 	PERKS_None = missionCommands.addCommand(string_Perks_none, PERKS_setting, handlePerkSetting, 0)
@@ -386,6 +404,7 @@ function createMissionSettings()
 	handleSAMSetting(1)
 	handleSamMissileSetting(0)
 	handleAwacsSetting(1)
+	handleAwacsRedSetting(0)
 	handleTankerSetting(3)
 	handlePrimarySetting(0)
 	handlePerkSetting(1)
@@ -516,7 +535,14 @@ function SpawnAWACS()
 	
 	if awacsSetting > 0 then
 		trigger.action.setUserFlag(Flag_AWACS_STARTUP, true)
-		trigger.action.outText("AWACS activated", 10)
+		trigger.action.outText("AWACS Blue activated", 10)
+	end
+	
+	local awacsRedSetting = trigger.misc.getUserFlag(Flag_AWACS_RED)
+	
+	if awacsRedSetting > 0 then
+		trigger.action.setUserFlag(Flag_AWACS_RED_STARTUP, true)
+		trigger.action.outText("AWACS Red activated", 10)
 	end
 end
 
