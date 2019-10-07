@@ -33,7 +33,7 @@ string_A2A_density_medium = 'A2A Density: Medium (10 to 14 hostiles)'
 string_A2A_density_high = 'A2A Density: High (12 to 18 hostiles)'
 
 string_A2A_difficulty_settings = 'Change A2A types'
-string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39)'
+string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-19)'
 string_A2A_difficulty_fair = 'A2A Difficulty: Fair (F-4, F-5, MiG-21)'
 string_A2A_difficulty_hard = 'A2A Difficulty: Hard (MiG-29, F-4, F-14)'
 
@@ -59,9 +59,9 @@ string_AWACS_RED_on = 'Red AWACS available'
 
 string_TANKER_settings = 'Change Tanker setting'
 string_Tankers_off = 'No tanker'
-string_Tankers_west = 'West Tanker (Shell 7-1)'
-string_Tankers_east = 'East Tanker (Texaco 8-1)'
-string_Tankers_both = 'Both Tankers (Shell 7-1, Texaco 8-1)'
+string_Tankers_west = 'West Tankers (Shell)'
+string_Tankers_east = 'East Tankers (Arco)'
+string_Tankers_both = 'All Tankers'
 
 -- PRIMARY
 string_PRIMARY_settings = 'Change Primary Target'
@@ -529,13 +529,15 @@ function SpawnTankers()
 	local tankerSetting = trigger.misc.getUserFlag(Flag_TANKER)
 	
 	if tankerSetting == 1 or tankerSetting == 3 then
-		Spawn_Tanker1 = SPAWN:New( "TankerShell" ):Spawn()
-		trigger.action.outText("Tanker Shell (west) spawned", 10)
+		Spawn_Tanker1a = SPAWN:New( "TankerShell1" ):Spawn()
+		Spawn_Tanker1b = SPAWN:New( "TankerShell2" ):Spawn()
+		trigger.action.outText("Tankers Shell (west) spawned", 10)
 	end
 	
 	if tankerSetting == 2 or tankerSetting == 3 then
-		Spawn_Tanker2 = SPAWN:New( "TankerTexaco" ):Spawn()
-		trigger.action.outText("Tanker Texaco (east) spawned", 10)
+		Spawn_Tanker2a = SPAWN:New( "TankerArco1" ):Spawn()
+		Spawn_Tanker2b = SPAWN:New( "TankerArco2" ):Spawn()
+		trigger.action.outText("Tankers Arco (east) spawned", 10)
 	end
 	return nil
 end
@@ -660,17 +662,17 @@ function SetupEWRNetwork()
 			
 			-- DIFFICULTY
 			-- Bandar Abbas:
-			----	Easy:	IRQ SQ Easy BandarAbbas L39
+			----	Easy:	IRQ SQ Easy BandarAbbas L39, IRQ SQ Easy BandarAbbas Mig19
 			----	Fair:	IRQ SQ Fair BandarAbbas F4, IRQ SQ Fair BandarAbbas F5, IRQ SQ Fair BandarAbbas MiG21
 			----	Hard:	IRQ SQ Hard BandarAbbas F4, IRQ SQ Hard BandarAbbas MiG29, IRQ SQ Hard BandarAbbas F14
 			
 			-- Havadarya:
-			----	Easy:	IRQ SQ Easy Havadarya L39
+			----	Easy:	IRQ SQ Easy Havadarya L39, IRQ SQ Easy Havadarya Mig19
 			----	Fair:	IRQ SQ Fair Havadarya F4, IRQ SQ Fair Havadarya MiG21
 			----	Hard:	IRQ SQ Hard Havadarya MiG29, IRQ SQ Hard Havadarya F4
 			
 			-- Lar AIRBASE:
-			----	Easy:	IRQ SQ Easy Lar L39
+			----	Easy:	IRQ SQ Easy Lar L39, IRQ SQ Easy Lar Mig19
 			----	Fair:	IRQ SQ Fair Lar F4, IRQ SQ Fair Lar F4
 			----	Hard:	IRQ SQ Hard Lar F14, IRQ SQ Hard Lar F14
 			
@@ -687,7 +689,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				larPlanesTypes = { "IRQ SQ Easy Lar L39" }
+				larPlanesTypes = { "IRQ SQ Easy Lar L39", "IRQ SQ Easy Lar Mig19" }
 			elseif airDifficulty == 1 then
 				larPlanesTypes = { "IRQ SQ Fair Lar F4", "IRQ SQ Fair Lar F4" }
 			elseif airDifficulty == 2 then
@@ -713,7 +715,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39" }
+				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39", "IRQ SQ Easy Havadarya Mig19" }
 			elseif airDifficulty == 1 then
 				havadaryaPlanesTypes = { "IRQ SQ Fair Havadarya F4", "IRQ SQ Fair Havadarya MiG21" }
 			elseif airDifficulty == 2 then
@@ -746,7 +748,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39" }
+				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39", "IRQ SQ Easy BandarAbbas Mig19" }
 			elseif airDifficulty == 1 then
 				bandarAbbasPlanesTypes = { "IRQ SQ Fair BandarAbbas F4", "IRQ SQ Fair BandarAbbas F5", "IRQ SQ Fair BandarAbbas MiG21" }
 			elseif airDifficulty == 2 then
