@@ -33,7 +33,7 @@ string_A2A_density_medium = 'A2A Density: Medium (10 to 14 hostiles)'
 string_A2A_density_high = 'A2A Density: High (12 to 18 hostiles)'
 
 string_A2A_difficulty_settings = 'Change A2A types'
-string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-19)'
+string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-15)'
 string_A2A_difficulty_fair = 'A2A Difficulty: Fair (F-4, F-5, MiG-21)'
 string_A2A_difficulty_hard = 'A2A Difficulty: Hard (MiG-29, F-4, F-14)'
 
@@ -601,7 +601,7 @@ function SpawnSAMs()
 			Spawn_AAA = SPAWN:New( "IRQ EWR AAA" ):SpawnInZone(ZoneAAA)
 			
 			local ZoneShipDefense = Zone:New( "ZoneShipDefense" )
-			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):SpawnInZone(ZoneShipDefense)			
+			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):SpawnInZone(ZoneShipDefense)
 			
 			local ZoneHawkEast = ZONE:New( "ZoneHawkEast" )
 			Spawn_Ship2 = SPAWN:New( "IRQ EWR HAWK EAST" ):SpawnInZone(ZoneHawkEast)
@@ -662,17 +662,17 @@ function SetupEWRNetwork()
 			
 			-- DIFFICULTY
 			-- Bandar Abbas:
-			----	Easy:	IRQ SQ Easy BandarAbbas L39, IRQ SQ Easy BandarAbbas Mig19
+			----	Easy:	IRQ SQ Easy BandarAbbas L39, IRQ SQ Easy BandarAbbas 2
 			----	Fair:	IRQ SQ Fair BandarAbbas F4, IRQ SQ Fair BandarAbbas F5, IRQ SQ Fair BandarAbbas MiG21
 			----	Hard:	IRQ SQ Hard BandarAbbas F4, IRQ SQ Hard BandarAbbas MiG29, IRQ SQ Hard BandarAbbas F14
 			
 			-- Havadarya:
-			----	Easy:	IRQ SQ Easy Havadarya L39, IRQ SQ Easy Havadarya Mig19
+			----	Easy:	IRQ SQ Easy Havadarya L39, IRQ SQ Easy Havadarya 2
 			----	Fair:	IRQ SQ Fair Havadarya F4, IRQ SQ Fair Havadarya MiG21
 			----	Hard:	IRQ SQ Hard Havadarya MiG29, IRQ SQ Hard Havadarya F4
 			
 			-- Lar AIRBASE:
-			----	Easy:	IRQ SQ Easy Lar L39, IRQ SQ Easy Lar Mig19
+			----	Easy:	IRQ SQ Easy Lar L39, IRQ SQ Easy Lar 2
 			----	Fair:	IRQ SQ Fair Lar F4, IRQ SQ Fair Lar F4
 			----	Hard:	IRQ SQ Hard Lar F14, IRQ SQ Hard Lar F14
 			
@@ -689,7 +689,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				larPlanesTypes = { "IRQ SQ Easy Lar L39", "IRQ SQ Easy Lar Mig19" }
+				larPlanesTypes = { "IRQ SQ Easy Lar L39", "IRQ SQ Easy Lar 2" }
 			elseif airDifficulty == 1 then
 				larPlanesTypes = { "IRQ SQ Fair Lar F4", "IRQ SQ Fair Lar F4" }
 			elseif airDifficulty == 2 then
@@ -715,7 +715,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39", "IRQ SQ Easy Havadarya Mig19" }
+				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39", "IRQ SQ Easy Havadarya 2" }
 			elseif airDifficulty == 1 then
 				havadaryaPlanesTypes = { "IRQ SQ Fair Havadarya F4", "IRQ SQ Fair Havadarya MiG21" }
 			elseif airDifficulty == 2 then
@@ -748,7 +748,7 @@ function SetupEWRNetwork()
 			end
 			
 			if airDifficulty == 0 then
-				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39", "IRQ SQ Easy BandarAbbas Mig19" }
+				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39", "IRQ SQ Easy BandarAbbas 2" }
 			elseif airDifficulty == 1 then
 				bandarAbbasPlanesTypes = { "IRQ SQ Fair BandarAbbas F4", "IRQ SQ Fair BandarAbbas F5", "IRQ SQ Fair BandarAbbas MiG21" }
 			elseif airDifficulty == 2 then
