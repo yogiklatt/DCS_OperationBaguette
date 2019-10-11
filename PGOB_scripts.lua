@@ -561,6 +561,8 @@ end
 function SpawnSAMs()
 	local samThreat = trigger.misc.getUserFlag(Flag_SAM)
 	
+	local iPhalanxCounter = 0
+	
 	if samThreat > 0 then
 		trigger.action.outText("Spawning SAMs ... ", 10)
 		
@@ -570,26 +572,27 @@ function SpawnSAMs()
 		-- Spawn Phalanx
 		Template_SAM_PHALANX = SPAWN:New( "IRQ EWR SA-15 Phalanx" ):InitLimit(12, 0)
 		
-		local PhalanxSpawnZone1 = ZONE:New( "PhalanxSpawn1" )
-		local PhalanxSpawnZone2 = ZONE:New( "PhalanxSpawn2" )
-		local PhalanxSpawnZone3 = ZONE:New( "PhalanxSpawn3" )
-		local PhalanxSpawnZone6 = ZONE:New( "PhalanxSpawn6" )
-		local PhalanxSpawnZone7 = ZONE:New( "PhalanxSpawn7" )
+		PhalanxSpawnTable = { ZONE:New( "SamPhalanx1" ), ZONE:New( "SamPhalanx2" ), ZONE:New( "SamPhalanx3" ), ZONE:New( "SamPhalanx4" ), ZONE:New( "SamPhalanx5" ), ZONE:New( "SamPhalanx6" ), ZONE:New( "SamPhalanx7" ), ZONE:New( "SamPhalanx8" ), ZONE:New( "SamPhalanx9" ), ZONE:New( "SamPhalanx10" ), ZONE:New( "SamPhalanx11" ), ZONE:New( "SamPhalanx12" ), ZONE:New( "SamPhalanx13" ), ZONE:New( "SamPhalanx14" ), ZONE:New( "SamPhalanx15" ), ZONE:New( "SamPhalanx16" ), ZONE:New( "SamPhalanx17" ), ZONE:New( "SamPhalanx18" ), ZONE:New( "SamPhalanx19" ), ZONE:New( "SamPhalanx20" ), ZONE:New( "SamPhalanx21" ), ZONE:New( "SamPhalanx22" ), ZONE:New( "SamPhalanx23" ), ZONE:New( "SamPhalanx24" ), ZONE:New( "SamPhalanx25" )}
 		
-		SAM_PHALANX1 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone1)
-		SAM_PHALANX2 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone2)
-		SAM_PHALANX3 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone3)
-		SAM_PHALANX6 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone6)
-		SAM_PHALANX7 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone7)
+		-- Fixed SA-15
+		local PhalanxSpawnZoneFixed1 = ZONE:New( "PhalanxSpawnFixed1" )
+		SAM_PHALANX_FIXED_1 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZoneFixed1)
+		
+		local PhalanxSpawnZoneFixed2 = ZONE:New( "PhalanxSpawnFixed2" )
+		SAM_PHALANX_FIXED_2 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZoneFixed2)
 		
 		local ZoneEntry = ZONE:New( "ZoneSA2Entry" )
 		Spawn_SAM_ENTRY = SPAWN:New( "IRQ EWR SA-2 ENTRY" ):SpawnInZone(ZoneEntry)
 		
+		Template_SAM_PHALANX_FIXED = SPAWN:New( "IRQ EWR SA-15 Phalanx" ):InitRandomizeZones( PhalanxSpawnTable )
+		
 		if samThreat == 1 then
+			iPhalanxCounter = 4
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" )}
 			Spawn_MAIN_SA2 = SPAWN:New( "IRQ EWR SA-2 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
 			
 		elseif samThreat > 1 then
+			iPhalanxCounter = 6
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" ), ZONE:New( "SamSpawnZone11" ), ZONE:New( "SamSpawnZone12" ) }
 			
 			local ZoneSA2Island = ZONE:New( "ZoneSA2Island" )
@@ -600,21 +603,21 @@ function SpawnSAMs()
 			local ZoneAAA = ZONE:New( "ZoneAAA" )
 			Spawn_AAA = SPAWN:New( "IRQ EWR AAA" ):SpawnInZone(ZoneAAA)
 			
-			local ZoneShipDefense = Zone:New( "ZoneShipDefense" )
-			Spawn_Ship = SPAWN:New( "IRQ EWR Ship defense" ):SpawnInZone(ZoneShipDefense)
-			
-			local ZoneHawkEast = ZONE:New( "ZoneHawkEast" )
-			Spawn_Ship2 = SPAWN:New( "IRQ EWR HAWK EAST" ):SpawnInZone(ZoneHawkEast)
-			
 			if samThreat > 2 then
+				iPhalanxCounter = 8
 				Spawn_MAIN_SA2_2 = SPAWN:New( "IRQ EWR SA-2 MAIN" ):InitRandomizeZones( SamZoneTable ):Spawn()
-				
-				local PhalanxSpawnZone4 = ZONE:New( "PhalanxSpawn4" )
-				local PhalanxSpawnZone5 = ZONE:New( "PhalanxSpawn5" )
-				SAM_PHALANX4 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone4)
-				SAM_PHALANX5 = Template_SAM_PHALANX:SpawnInZone(PhalanxSpawnZone5)
 			end
 		end
+		if bool_allowDebug == true then
+			trigger.action.outText("Phalanx size is " .. iPhalanxCounter, 10)
+		end
+		for i=1,iPhalanxCounter,1 do
+			if bool_allowDebug == true then
+				trigger.action.outText("Spawn Phalanx " .. i, 10)
+			end
+			table_phalanx[i] = Template_SAM_PHALANX_FIXED:Spawn()
+		end
+		trigger.action.outText("Phalanx spawn complete.", 10)
 		
 		trigger.action.outText("Spawn SAMs completed", 10)
 	end
@@ -872,6 +875,7 @@ end
 
 -- Create difficulty settings
 table_settingsStore = {}
+table_phalanx = {}
 bool_firstRunDone = false
 createMissionSettings()
 
