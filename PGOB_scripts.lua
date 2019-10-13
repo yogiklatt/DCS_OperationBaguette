@@ -28,9 +28,9 @@ Flag_PERKS_Activate_Satellite_Jammer_Active = '22'
 -- A2A THREAT
 string_A2A_density_settings = 'Change A2A numbers'
 string_A2A_density_none = 'A2A Density: none'
-string_A2A_density_low = 'A2A Density: Low (6 to 10 hostiles)'
-string_A2A_density_medium = 'A2A Density: Medium (10 to 14 hostiles)'
-string_A2A_density_high = 'A2A Density: High (12 to 18 hostiles)'
+string_A2A_density_low = 'A2A Density: Low (up to 6)'
+string_A2A_density_medium = 'A2A Density: Medium (up to 10)'
+string_A2A_density_high = 'A2A Density: High (up to 16)'
 
 string_A2A_difficulty_settings = 'Change A2A types'
 string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-15)'
@@ -525,6 +525,27 @@ function StartQueshmIslandCAP()
 	return nil
 end
 
+function StartJ11CAP()
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
+
+	if airDensity < 0 and airDifficulty == 2 then
+		return nil
+	end
+
+	J11CapPlane = GROUP:FindByName( "IRQ SQ J-11 Secondaries" )
+	J11PatrolZone = ZONE:New( "J11PatrolZone" )
+	J11CapZone = AI_CAP_ZONE:New( J11PatrolZone, 500, 1000, 500, 600 )
+	J11EngageZoneGroup = GROUP:FindByName( "IRQ ENGAGE ZONE F5" ) -- editor placed polygon
+	J11CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE J11", J11EngageZoneGroup )
+	J11CapZone:SetControllable( J11CapPlane )
+	J11CapZone:SetEngageZone( J11CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
+	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
+	
+	trigger.action.outText("J-11s starting up ...", 10)
+	return nil
+end
+
 function SpawnTankers()
 	local tankerSetting = trigger.misc.getUserFlag(Flag_TANKER)
 	
@@ -634,6 +655,7 @@ end
 function SetupEWRNetwork()
 	trigger.action.outText("Checking Detection Network", 10)
 	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	trigger.action.outText("DENSITY VALUE IS " .. airDensity, 10)
 	local samThreat = trigger.misc.getUserFlag(Flag_SAM)
 	local debuggerEnabled = IsDebuggingOn()
 	bBlueInRedZone = false
@@ -663,115 +685,64 @@ function SetupEWRNetwork()
 			-- Havadarya			2			2			4       | 
 			-- Lar AIRBASE			2			4			8       | 
 			
-			-- DIFFICULTY
-			-- Bandar Abbas:
-			----	Easy:	IRQ SQ Easy BandarAbbas L39, IRQ SQ Easy BandarAbbas 2
-			----	Fair:	IRQ SQ Fair BandarAbbas F4, IRQ SQ Fair BandarAbbas F5, IRQ SQ Fair BandarAbbas MiG21
-			----	Hard:	IRQ SQ Hard BandarAbbas F4, IRQ SQ Hard BandarAbbas MiG29, IRQ SQ Hard BandarAbbas F14
-			
-			-- Havadarya:
-			----	Easy:	IRQ SQ Easy Havadarya L39, IRQ SQ Easy Havadarya 2
-			----	Fair:	IRQ SQ Fair Havadarya F4, IRQ SQ Fair Havadarya MiG21
-			----	Hard:	IRQ SQ Hard Havadarya MiG29, IRQ SQ Hard Havadarya F4
-			
-			-- Lar AIRBASE:
-			----	Easy:	IRQ SQ Easy Lar L39, IRQ SQ Easy Lar 2
-			----	Fair:	IRQ SQ Fair Lar F4, IRQ SQ Fair Lar F4
-			----	Hard:	IRQ SQ Hard Lar F14, IRQ SQ Hard Lar F14
-			
-			-- set up Lar
-			
 			local larPlanesCount = 0
-			local larPlanesTypes = {}
+			local enemyPlanesTypes = {}
 			if airDensity == 1 then
 				larPlanesCount = 2
 			elseif airDensity == 2 then
-				larPlanesCount = 4
+				larPlanesCount = 2
 			elseif airDensity == 3 then
-				larPlanesCount = 8
+				larPlanesCount = 4
 			end
 			
 			if airDifficulty == 0 then
-				larPlanesTypes = { "IRQ SQ Easy Lar L39", "IRQ SQ Easy Lar 2" }
+				enemyPlanesTypes = { "IRQ SQ Easy L39", "IRQ SQ Easy MIG15" }
 			elseif airDifficulty == 1 then
-				larPlanesTypes = { "IRQ SQ Fair Lar F4", "IRQ SQ Fair Lar F4" }
+				enemyPlanesTypes = { "IRQ SQ Fair F5", "IRQ SQ Fair F4", "IRQ SQ Fair MIG23" }
 			elseif airDifficulty == 2 then
-				larPlanesTypes = { "IRQ SQ Hard Lar F14", "IRQ SQ Hard Lar F14" }
+				enemyPlanesTypes = { "IRQ SQ Hard F14", "IRQ SQ Hard MIG29", "IRQ SQ Hard Mirage", "IRQ SQ Hard F4", "IRQ SQ Hard MIG31", "IRQ SQ HARD MIG23" }
 			end
 			
-			A2ADispatcher:SetSquadron("LarAirbaseSq", AIRBASE.PersianGulf.Lar_Airbase, larPlanesTypes, larPlanesCount )
+			A2ADispatcher:SetSquadron("LarAirbaseSq", AIRBASE.PersianGulf.Lar_Airbase, enemyPlanesTypes, larPlanesCount )
 			A2ADispatcher:SetIntercept( 120 )
 			A2ADispatcher:SetSquadronOverhead( "LarAirbaseSq", 1 )
 			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "LarAirbaseSq" )
 			A2ADispatcher:SetSquadronGci( "LarAirbaseSq", 300, 600 )
 			A2ADispatcher:SetSquadronGrouping( "LarAirbaseSq", 2 )
 			
-			local havadaryaPlanesCount = 0
-			local havadaryaPlanesTypes = {}
-			
-			if airDensity == 1 then
-				havadaryaPlanesCount = 2
-			elseif airDensity == 2 then
-				havadaryaPlanesCount = 2
-			elseif airDensity == 3 then
-				havadaryaPlanesCount = 4
-			end
-			
-			if airDifficulty == 0 then
-				havadaryaPlanesTypes = { "IRQ SQ Easy Havadarya L39", "IRQ SQ Easy Havadarya 2" }
-			elseif airDifficulty == 1 then
-				havadaryaPlanesTypes = { "IRQ SQ Fair Havadarya F4", "IRQ SQ Fair Havadarya MiG21" }
-			elseif airDifficulty == 2 then
-				havadaryaPlanesTypes = { "IRQ SQ Hard Havadarya MiG29", "IRQ SQ Hard Havadarya F4" }
-			end
-			
-			A2ADispatcher:SetSquadron("HavadaryaAirbaseSq", AIRBASE.PersianGulf.Havadarya, havadaryaPlanesTypes, havadaryaPlanesCount )
-			A2ADispatcher:SetIntercept( 90 )
-			A2ADispatcher:SetSquadronOverhead( "HavadaryaAirbaseSq", 1 )
-			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "HavadaryaAirbaseSq" )
-			A2ADispatcher:SetSquadronGci( "HavadaryaAirbaseSq", 300, 800 )
-			A2ADispatcher:SetSquadronGrouping( "HavadaryaAirbaseSq", 2 )
-			
-			-- setup CAP for havadarya on hard difficulty
-			if airDensity == 3 then
-				CapZoneSouth = ZONE_POLYGON:New( "IRQ CAP ZONE", GROUP:FindByName( "IRQ CAP ZONE" ) )
-				A2ADispatcher:SetSquadronCap( "HavadaryaAirbaseSq", CapZoneSouth, 8000, 15000, 200, 400, 400, 700, "BARO" )
-				A2ADispatcher:SetSquadronCapInterval( "HavadaryaAirbaseSq", 100, 300, 120, 1 )
-			end
-			
-			local bandarAbbasPlanesCount = 0
-			local bandarAbbasPlanesTypes = {}
+			local bandarAbbasPlanesCount = 2
 			
 			if airDensity == 1 then
 				bandarAbbasPlanesCount = 2
 			elseif airDensity == 2 then
 				bandarAbbasPlanesCount = 4
-			elseif airDensity == 2 then
-				bandarAbbasPlanesCount = 4
+			elseif airDensity == 3 then
+				bandarAbbasPlanesCount = 6
 			end
-			
-			if airDifficulty == 0 then
-				bandarAbbasPlanesTypes = { "IRQ SQ Easy BandarAbbas L39", "IRQ SQ Easy BandarAbbas 2" }
-			elseif airDifficulty == 1 then
-				bandarAbbasPlanesTypes = { "IRQ SQ Fair BandarAbbas F4", "IRQ SQ Fair BandarAbbas F5", "IRQ SQ Fair BandarAbbas MiG21" }
-			elseif airDifficulty == 2 then
-				bandarAbbasPlanesTypes = { "IRQ SQ Hard BandarAbbas F4", "IRQ SQ Hard BandarAbbas MiG29", "IRQ SQ Hard BandarAbbas F14" }
-			end
-			
-			A2ADispatcher:SetSquadron("BandarAbbasAirbaseSq", AIRBASE.PersianGulf.Bandar_Abbas_Intl, bandarAbbasPlanesTypes, bandarAbbasPlanesCount )
-			A2ADispatcher:SetIntercept( 120 )
-			A2ADispatcher:SetSquadronOverhead( "BandarAbbasAirbaseSq", 1 )
-			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "BandarAbbasAirbaseSq" )
-			A2ADispatcher:SetSquadronGci( "BandarAbbasAirbaseSq", 300, 800 )
-			A2ADispatcher:SetSquadronGrouping( "BandarAbbasAirbaseSq", 2 )
 						
+			--trigger.action.outText("Squadrons set: Plane count " .. bandarAbbasPlanesCount .. ", difficulty " .. airDifficulty .. " " .. "!!!", 100)
+			
+			A2ADispatcher:SetSquadron("BandarAbbasSq", AIRBASE.PersianGulf.Bandar_Abbas_Intl, enemyPlanesTypes, bandarAbbasPlanesCount )
+			A2ADispatcher:SetIntercept( 120 )
+			A2ADispatcher:SetSquadronOverhead( "BandarAbbasSq", 0.75 )
+			A2ADispatcher:SetSquadronTakeoffFromParkingCold( "BandarAbbasSq" )
+			A2ADispatcher:SetSquadronGci( "BandarAbbasSq", 300, 600 )
+			A2ADispatcher:SetSquadronGrouping( "BandarAbbasSq", 2 )
+			
+			--setup CAP for havadarya on hard difficulty
+			if airDensity == 3 then
+				CapZoneSouth = ZONE_POLYGON:New( "CapZoneSouth", GROUP:FindByName( "IRQ CAP ZONE" ) )
+				A2ADispatcher:SetSquadronCap( "BandarAbbasSq", CapZoneSouth, 8000, 15000, 200, 400, 400, 700, "BARO" )
+				A2ADispatcher:SetSquadronCapInterval( "BandarAbbasSq", 100, 300, 120, 1 )
+			end
+			
 			A2ADispatcher:SetTacticalDisplay( debuggerEnabled )
 			A2ADispatcher:SetDefaultTakeoffFromParkingCold()
 			A2ADispatcher:SetDefaultLandingAtEngineShutdown()
 			A2ADispatcher:SetDefaultFuelThreshold( 0.20 )
 			A2ADispatcher:SetDisengageRadius( 250000 )
 			A2ADispatcher:SetEngageRadius( 100000 )
-			A2ADispatcher:SetGciRadius( 100000 )
+			A2ADispatcher:SetGciRadius( 150000 )
 			A2ADispatcher:Start()
 		else
 			Detection:Start()
