@@ -521,7 +521,7 @@ function StartQueshmIslandCAP()
 	F5CapZone:SetEngageZone( TigerCapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
 	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
 	
-	trigger.action.outText("Queshm groups initiated", 10)
+	--trigger.action.outText("Queshm groups initiated", 10)
 	return nil
 end
 
@@ -542,7 +542,7 @@ function StartJ11CAP()
 	J11CapZone:SetEngageZone( J11CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
 	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
 	
-	trigger.action.outText("J-11s starting up ...", 10)
+	--trigger.action.outText("J-11s starting up ...", 10)
 	return nil
 end
 
