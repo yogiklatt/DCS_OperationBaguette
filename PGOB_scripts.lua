@@ -26,16 +26,17 @@ Flag_PERKS_Activate_Satellite_Jammer = '21'
 Flag_PERKS_Activate_Satellite_Jammer_Active = '22'
 
 -- A2A THREAT
-string_A2A_density_settings = 'Change A2A numbers'
-string_A2A_density_none = 'A2A Density: none'
-string_A2A_density_low = 'A2A Density: Low (up to 6)'
-string_A2A_density_medium = 'A2A Density: Medium (up to 10)'
-string_A2A_density_high = 'A2A Density: High (up to 16)'
+string_A2A_density_settings = 'Change A2A setup:'
+string_A2A_density_none = 'No Air to Air Threat'
+string_A2A_density_low = 'AI: Low Threat (up to 6)'
+string_A2A_density_medium = 'AI: Medium Threat (up to 10)'
+string_A2A_density_high = 'AI: High Threat (up to 16)'
+string_A2A_density_game_master = 'HUMAN: Red Commander (eeek!)'
 
-string_A2A_difficulty_settings = 'Change A2A types'
+string_A2A_difficulty_settings = 'Change A2A types (only applies to A2A AI setup)'
 string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-15)'
 string_A2A_difficulty_fair = 'A2A Difficulty: Fair (F-4, F-5, MiG-21)'
-string_A2A_difficulty_hard = 'A2A Difficulty: Hard (MiG-29, F-4, F-14)'
+string_A2A_difficulty_hard = 'A2A Difficulty: Hard (surprise!)'
 
 -- SAAAAAAAAAAAAAAAAms
 string_SAM_settings = 'Change SAM threat setting'
@@ -85,6 +86,32 @@ string_Debug_spawn_harriers = 'Spawn some Harriers!'
 string_Debug_spawn_hornets = 'Spawn some Hornets!'
 string_Debug_spawn_tomcats = 'Spawn some Tomcats!'
 
+-- RED GAME Master
+string_GAME_MASTER_Spawn_Easy = 'Spawn Easy Flight'
+string_GAME_MASTER_Spawn_Easy_L39 = 'Spawn L-39'
+string_GAME_MASTER_Spawn_Easy_MIG15 = 'Spawn Mig-15'
+
+string_GAME_MASTER_Spawn_Fair = 'Spawn Fair Flight'
+string_GAME_MASTER_Spawn_Fair_F4 = 'Spawn F-5'
+string_GAME_MASTER_Spawn_Fair_F5 = 'Spawn F-4'
+string_GAME_MASTER_Spawn_Fair_MIG23 = 'Spawn MiG-23'
+
+string_GAME_MASTER_Spawn_Hard = 'Spawn Hard Flight'
+string_GAME_MASTER_Spawn_Hard_F14 = 'Spawn F-14'
+string_GAME_MASTER_Spawn_Hard_MIG29 = 'Spawn MiG-29'
+string_GAME_MASTER_Spawn_Hard_MIG31 = 'Spawn MiG-31'
+string_GAME_MASTER_Spawn_Hard_MIRAGE = 'Spawn Mirage 2000'
+string_GAME_MASTER_Spawn_Hard_F4 = 'Spawn F-4'
+string_GAME_MASTER_Spawn_Hard_MIG23 = 'Spawn MiG-23'
+
+string_GAME_MASTER_SELECT_AIRBASE = 'Select Spawn Airbase'
+string_GAME_MASTER_SELECT_AIRBASE_BANDAR_ABBAS = 'Bandar Abbas'
+string_GAME_MASTER_SELECT_AIRBASE_BANDAR_LENGEH = 'Bandar Lengeh'
+string_GAME_MASTER_SELECT_AIRBASE_HAVADARYA = 'Havadarya'
+string_GAME_MASTER_SELECT_AIRBASE_KISH_INTL = 'Kish International'
+string_GAME_MASTER_SELECT_AIRBASE_LAR = 'Lar'
+string_GAME_MASTER_SELECT_AIRBASE_QUESHM_ISLAND = 'Queshm Island'
+
 string_settings_setToMax = 'Set max difficulty'
 
 bool_blueUnitsDetectedState = false
@@ -107,6 +134,8 @@ function handleA2ADensitySetting(flagValue)
 		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_medium
 	elseif flagValue == 3 then
 		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_high
+	elseif flagValue == 4 then
+		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_game_master
 	end
 	
 	PrintCurrentSettings(bool_firstRunDone)
@@ -273,6 +302,7 @@ function removeSettings()
 	missionCommands.removeItem(A2A_density_low)
 	missionCommands.removeItem(A2A_density_medium)
 	missionCommands.removeItem(A2A_density_high)
+	missionCommands.removeItem(A2A_density_game_master)
 	missionCommands.removeItem(A2A_density_setting)
 	
 	missionCommands.removeItem(A2A_difficulty_easy)
@@ -365,6 +395,7 @@ function createMissionSettings()
 	A2A_density_low = missionCommands.addCommand(string_A2A_density_low, A2A_density_setting, handleA2ADensitySetting, 1)
 	A2A_density_medium = missionCommands.addCommand(string_A2A_density_medium, A2A_density_setting, handleA2ADensitySetting, 2)
 	A2A_density_high = missionCommands.addCommand(string_A2A_density_high, A2A_density_setting, handleA2ADensitySetting, 3)
+	A2A_density_game_master = missionCommands.addCommand(string_A2A_density_game_master, A2A_density_setting, handleA2ADensitySetting, 4)
 	
 	A2A_difficulty_setting = missionCommands.addSubMenu(string_A2A_difficulty_settings)
 	A2A_difficulty_easy = missionCommands.addCommand(string_A2A_difficulty_easy, A2A_difficulty_setting, handleA2ADifficultySetting, 0)
@@ -652,6 +683,64 @@ function SetupEWRSet()
 	return nil
 end
 
+function HandleGameMasterPlaneSpawn(flagValue)
+	
+	if flagValue == 11 then
+		Red_Air_Spawn_Easy_L39:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 12 then
+		Red_Air_Spawn_Easy_MIG15:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 21 then
+		Red_Air_Spawn_Fair_F5:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 22 then
+		Red_Air_Spawn_Fair_F4:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 23 then
+		Red_Air_Spawn_Fair_MIG23:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 31 then
+		Red_Air_Spawn_Hard_F14:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 32 then
+		Red_Air_Spawn_Hard_MIG29:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 33 then
+		Red_Air_Spawn_Hard_MIG31:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 34 then
+		Red_Air_Spawn_Hard_MIRAGE:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 35 then
+		Red_Air_Spawn_Hard_F4:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	elseif flagValue == 36 then
+		Red_Air_Spawn_Hard_MIG23:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), SPAWN.Takeoff.Hot )
+	end
+	
+	return nil
+end
+
+function HandleGameMasterAirBase(flagValue)
+	--trigger.action.setUserFlag(Flag_PRIMARY, flagValue)
+	
+	-- GAME_MASTER_SPAWN_AIRBASE_BANDAR_ABBAS = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_BANDAR_ABBAS, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Bandar_Abbas_Intl)
+	-- GAME_MASTER_SPAWN_AIRBASE_BANDAR_ABBAS = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_BANDAR_LENGEH, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Bandar_Lengeh)
+	-- GAME_MASTER_SPAWN_AIRBASE_HAVADARYA = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_HAVADARYA, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Havadarya)
+	-- --GAME_MASTER_SPAWN_AIRBASE_KISH = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_KISH_INTL, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase,  AIRBASE.PersianGulf.Kish)
+	-- GAME_MASTER_SPAWN_AIRBASE_LAR = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_SELECT_AIRBASE_LAR, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Lar_Airbase)
+	-- GAME_MASTER_SPAWN_AIRBASE_QUESHM = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_QUESHM_ISLAND, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Qeshm_Island)
+	
+	int_spawnSelectedAirBase = flagValue
+	
+	if flagValue == AIRBASE.PersianGulf.Bandar_Abbas_Intl then
+		trigger.action.outTextForCoalition(coalition.side.RED, "Airbase changed to Bandar Abbas", 10)
+	elseif flagValue == AIRBASE.PersianGulf.Bandar_Lengeh then
+		trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Bandar_Lengeh", 10)
+	elseif flagValue == AIRBASE.PersianGulf.Havadarya then
+		trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Havadarya", 10)
+	--elseif flagValue == AIRBASE.PersianGulf.Kish then
+	--	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Kish", 10)
+	elseif flagValue == AIRBASE.PersianGulf.Lar_Airbase then
+		trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Lar_Airbase", 10)
+	elseif flagValue == AIRBASE.PersianGulf.Qeshm_Island then
+		trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Qeshm_Island", 10)
+	end
+	return nil
+end
+
+
 function SetupEWRNetwork()
 	trigger.action.outText("Checking Detection Network", 10)
 	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
@@ -673,7 +762,9 @@ function SetupEWRNetwork()
 		
 		CCCPBorderZone = ZONE_POLYGON:New( "IRQ Border", GROUP:FindByName( "IRQ Border" ) )
 		
-		if airDensity > 0 then
+		if airDensity > 0 and airDensity < 4 then
+			-- do not execute this action on player control
+		
 			local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)	
 		
 			A2ADispatcher = AI_A2A_DISPATCHER:New( Detection )
@@ -746,6 +837,55 @@ function SetupEWRNetwork()
 			A2ADispatcher:Start()
 		else
 			Detection:Start()
+			
+			if airDensity == 4 then
+				-- red is under enemy control
+				
+				Red_Air_Spawn_Easy_L39 = SPAWN:New( "IRQ SQ Easy L39" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Easy_MIG15 = SPAWN:New( "IRQ SQ Easy MIG15" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Fair_F5 = SPAWN:New( "IRQ SQ Fair F5" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Fair_F4 = SPAWN:New( "IRQ SQ Fair F4" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Fair_MIG23 = SPAWN:New( "IRQ SQ Fair MIG23" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_F14 = SPAWN:New( "IRQ SQ Hard F14" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_MIG29 = SPAWN:New( "IRQ SQ Hard MIG29" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_MIRAGE = SPAWN:New( "IRQ SQ Hard Mirage" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_F4 = SPAWN:New( "IRQ SQ Hard F4" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_MIG31 = SPAWN:New( "IRQ SQ Hard MIG31" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_Hard_MIG23 = SPAWN:New( "IRQ SQ HARD MIG23" ):InitGrouping(2):InitLimit(4,2)
+				
+				-- int_spawnSelectedAirBase = 0
+				-- int_spawnNumUnits = 2
+				-- AIRBASE.PersianGulf.Bandar_Abbas_Intl = 0
+				-- AIRBASE.PersianGulf.Lar_Airbase = 1
+				
+				GAME_MASTER_SPAWN_AIRBASE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE, nil)
+				GAME_MASTER_SPAWN_AIRBASE_BANDAR_ABBAS = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_BANDAR_ABBAS, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Bandar_Abbas_Intl)
+				GAME_MASTER_SPAWN_AIRBASE_BANDAR_ABBAS = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_BANDAR_LENGEH, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Bandar_Lengeh)
+				GAME_MASTER_SPAWN_AIRBASE_HAVADARYA = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_HAVADARYA, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Havadarya)
+				--GAME_MASTER_SPAWN_AIRBASE_KISH = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_KISH_INTL, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, Lar_Airbase)
+				GAME_MASTER_SPAWN_AIRBASE_LAR = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_SELECT_AIRBASE_LAR, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Lar_Airbase)
+				GAME_MASTER_SPAWN_AIRBASE_QUESHM = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_SELECT_AIRBASE_QUESHM_ISLAND, GAME_MASTER_SPAWN_AIRBASE, HandleGameMasterAirBase, AIRBASE.PersianGulf.Qeshm_Island)
+				
+				GAME_MASTER_SPAWN_GROUP_EASY = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Easy, nil)
+				GAME_MASTER_SPAWN_GROUP_EASY_L39 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Easy_L39, GAME_MASTER_SPAWN_GROUP_EASY, HandleGameMasterPlaneSpawn, 11)
+				GAME_MASTER_SPAWN_GROUP_EASY_MIG15 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Easy_MIG15, GAME_MASTER_SPAWN_GROUP_EASY, HandleGameMasterPlaneSpawn, 12)
+				
+				GAME_MASTER_SPAWN_GROUP_FAIR = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Fair, nil)
+				GAME_MASTER_SPAWN_GROUP_FAIR_F4 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Fair_F4, GAME_MASTER_SPAWN_GROUP_FAIR, HandleGameMasterPlaneSpawn, 21)
+				GAME_MASTER_SPAWN_GROUP_FAIR_F5 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Fair_F5, GAME_MASTER_SPAWN_GROUP_FAIR, HandleGameMasterPlaneSpawn, 22)
+				GAME_MASTER_SPAWN_GROUP_FAIR_MIG23 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Fair_MIG23, GAME_MASTER_SPAWN_GROUP_FAIR, HandleGameMasterPlaneSpawn, 23)
+				
+				GAME_MASTER_SPAWN_GROUP_HARD = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_Hard, nil)
+				string_GAME_MASTER_Spawn_Hard_F14 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_F14, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 31)
+				string_GAME_MASTER_Spawn_Hard_MIG29 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_MIG29, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 32)
+				string_GAME_MASTER_Spawn_Hard_MIG31 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_MIG31, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 33)
+				string_GAME_MASTER_Spawn_Hard_MIRAGE = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_MIRAGE, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 34)
+				string_GAME_MASTER_Spawn_Hard_F4 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_F4, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 35)
+				string_GAME_MASTER_Spawn_Hard_MIG23 = missionCommands.addCommandForCoalition(coalition.side.RED, 	string_GAME_MASTER_Spawn_Hard_MIG23, GAME_MASTER_SPAWN_GROUP_HARD, HandleGameMasterPlaneSpawn, 36)
+				
+				-- set default airbase
+				HandleGameMasterAirBase(AIRBASE.PersianGulf.Bandar_Abbas_Intl)
+			end
 		end
 		
 		function Detection:OnAfterDetected( From, Event, To, DetectedUnits )
@@ -848,5 +988,8 @@ end
 table_settingsStore = {}
 table_phalanx = {}
 bool_firstRunDone = false
+
+int_spawnSelectedAirBase = 0
+
 createMissionSettings()
 
