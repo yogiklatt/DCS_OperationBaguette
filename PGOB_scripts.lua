@@ -28,22 +28,22 @@ Flag_PERKS_Activate_Satellite_Jammer_Active = '22'
 -- A2A THREAT
 string_A2A_density_settings = 'Change A2A setup:'
 string_A2A_density_none = 'No Air to Air Threat'
-string_A2A_density_low = 'AI: Low Threat (up to 6)'
-string_A2A_density_medium = 'AI: Medium Threat (up to 10)'
-string_A2A_density_high = 'AI: High Threat (up to 16)'
-string_A2A_density_game_master = 'HUMAN: Red Commander (eeek!)'
+string_A2A_density_low = 'AI - Low Threat (up to 6)'
+string_A2A_density_medium = 'AI - Medium Threat (up to 10)'
+string_A2A_density_high = 'AI - High Threat (up to 16)'
+string_A2A_density_game_master = 'HUMAN - Red Commander (eeek!)'
 
-string_A2A_difficulty_settings = 'Change A2A types (only applies to A2A AI setup)'
-string_A2A_difficulty_easy = 'A2A Difficulty: Easy (L-39, MiG-15)'
-string_A2A_difficulty_fair = 'A2A Difficulty: Fair (F-4, F-5, MiG-21)'
-string_A2A_difficulty_hard = 'A2A Difficulty: Hard (surprise!)'
+string_A2A_difficulty_settings = 'Change A2A types (only applies to AI setup)'
+string_A2A_difficulty_easy = 'Easy (L-39, MiG-15)'
+string_A2A_difficulty_fair = 'Fair (F-4, F-5, MiG-21)'
+string_A2A_difficulty_hard = 'Hard (surprise!)'
 
 -- SAAAAAAAAAAAAAAAAms
 string_SAM_settings = 'Change SAM threat setting'
-string_SAM_threat_none = 'No SAM Threat'
-string_SAM_threat_low = 'Low SAM Threat (SA-2, SA-15)'
-string_SAM_threat_medium = 'Medium SAM Threat (SA-2, SA-10, SA-15, AAA, Ships)'
-string_SAM_threat_high = 'High SAM Threat (SA-2, SA-10, SA-15, AAA, Ships)'
+string_SAM_threat_none = 'No Threat'
+string_SAM_threat_low = 'Low Threat(SA-2, SA-15)'
+string_SAM_threat_medium = 'Medium Threat (SA-2, SA-10, SA-15, AAA, Ships)'
+string_SAM_threat_high = 'High Threat (SA-2, SA-10, SA-15, AAA, Ships)'
 
 string_SAM_engage_missiles_settings = 'Change SAM engage missiles settings'
 string_SAM_engage_missiles_on = 'SAMs engage missiles.'
@@ -466,26 +466,45 @@ function PrintCurrentSettings(executePrint)
 	if executePrint then
 		local currentSettings = "Current settings:\n"
 		
-		--currentSettings = currentSettings .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_SAM] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_SAM_MISSILES] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_PRIMARY] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_AWACS] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_TANKER] .. "\n"
-		--currentSettings = currentSettings .. table_settingsStore[Flag_PERKS] .. "\n"
-		--
-		--if bool_allowDebug == true
-		--	currentSettings = currentSettings .. table_settingsStore[Flag_DEBUG] .. "\n"
-		--end
-		--local testString = 'dddd' .. currentSettings[Flag_A2A_DENSITY]
-		--trigger.action.outText(testString, 20)
+		local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
 		
-		for key,value in pairs(table_settingsStore) do 
-			currentSettings = currentSettings .. key .. ': ' .. value .. "\n"
+		currentSettings = currentSettings .. "--------------------- \n"
+		currentSettings = currentSettings .. "1. Air to air: \n"
+		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
+		if airDensity == 4 then
+			currentSettings = currentSettings .. "          Types: Under human control (muahahahar) \n"
+		else
+			currentSettings = currentSettings .. '          Types: ' .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
 		end
 		
-		trigger.action.outText(currentSettings, 20)
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		currentSettings = currentSettings .. "2. SAM threat: \n"
+		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_SAM] .. "\n"
+		currentSettings = currentSettings .. '          Missile behaviour: ' .. table_settingsStore[Flag_SAM_MISSILES] .. "\n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		currentSettings = currentSettings .. "3. AWACS setup: \n"
+		currentSettings = currentSettings .. '          Blue: ' .. table_settingsStore[Flag_AWACS] .. "\n"
+		currentSettings = currentSettings .. '          Red: ' .. table_settingsStore[Flag_AWACS_RED] .. "\n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		currentSettings = currentSettings .. "4. Tankers: " .. table_settingsStore[Flag_TANKER] .. " \n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		currentSettings = currentSettings .. "5. Primary Target: " .. table_settingsStore[Flag_PRIMARY] .. " \n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		currentSettings = currentSettings .. "6. Available Perk: " .. table_settingsStore[Flag_PERKS] .. " \n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+		
+		trigger.action.outText(currentSettings, 30)
 		trigger.action.outSound('l10n/DEFAULT/set_bar_01.ogg')
 	end
 	
