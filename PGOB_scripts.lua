@@ -105,9 +105,10 @@ string_GAME_MASTER_Spawn_Hard_F4 = 'Spawn F-4'
 string_GAME_MASTER_Spawn_Hard_MIG23 = 'Spawn MiG-23'
 
 string_GAME_MASTER_Spawn_A2G = 'Spawn Ground Attack Flight'
-string_GAME_MASTER_Spawn_A2G_SU25T = 'Spawn SU-25T'
-string_GAME_MASTER_Spawn_A2G_SU34 = 'Spawn SU-34'
-string_GAME_MASTER_Spawn_A2G_TU22 = 'Spawn TU-22'
+string_GAME_MASTER_Spawn_A2G_SU25T = 'Spawn SU-25T (CAS)'
+string_GAME_MASTER_Spawn_A2G_SU34_SEAD = 'Spawn SU-34 (SEAD)'
+string_GAME_MASTER_Spawn_A2G_SU34 = 'Spawn SU-34 (Ground Attack)'
+string_GAME_MASTER_Spawn_A2G_TU22 = 'Spawn TU-22 (Ground Attack)'
 
 string_GAME_MASTER_SELECT_SPAWN_TYPE = 'Select plane spawn type (air or ground)'
 string_GAME_MASTER_SELECT_SPAWN_TYPE_COLD = 'Cold ground spawn'
@@ -708,7 +709,7 @@ end
 -- this is to cache all EWR units for later reuse
 function SetupEWRSet()
 	Set_EWR = SET_GROUP:New():FilterPrefixes( "IRQ EWR" ):FilterStart()
-	trigger.action.outText("EWR filters set.", 10)
+	trigger.action.outText("EWR filters set", 10)
 	return nil
 end
 
@@ -739,8 +740,10 @@ function HandleGameMasterPlaneSpawn(flagValue)
 	elseif flagValue == 41 then
 		Red_Air_Spawn_A2G_SU25T:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), int_spawnSelectSpawnType)
 	elseif flagValue == 42 then
-		Red_Air_Spawn_A2G_SU34:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), int_spawnSelectSpawnType)
+		Red_Air_Spawn_A2G_SU34_SEAD:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), int_spawnSelectSpawnType)
 	elseif flagValue == 43 then
+		Red_Air_Spawn_A2G_SU34:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), int_spawnSelectSpawnType)
+	elseif flagValue == 44 then
 		Red_Air_Spawn_A2G_TU22:SpawnAtAirbase( AIRBASE:FindByName( int_spawnSelectedAirBase ), int_spawnSelectSpawnType)
 	end
 	
@@ -751,20 +754,6 @@ function HandleGameMasterPlaneSpawn(flagValue)
 end
 
 function HandleGameMasterAirBase(flagValue)
-	--if flagValue == AIRBASE.PersianGulf.Bandar_Abbas_Intl then
-	--	trigger.action.outTextForCoalition(coalition.side.RED, "Airbase changed to Bandar Abbas", 10)
-	--elseif flagValue == AIRBASE.PersianGulf.Bandar_Lengeh then
-	--	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Bandar_Lengeh", 10)
-	--elseif flagValue == AIRBASE.PersianGulf.Havadarya then
-	--	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Havadarya", 10)
-	----elseif flagValue == AIRBASE.PersianGulf.Kish then
-	----	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Kish", 10)
-	--elseif flagValue == AIRBASE.PersianGulf.Lar_Airbase then
-	--	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Lar_Airbase", 10)
-	--elseif flagValue == AIRBASE.PersianGulf.Qeshm_Island then
-	--	trigger.action.outTextForCoalition(coalition.side.RED,"Airbase changed to Qeshm_Island", 10)
-	--end
-	
 	int_spawnSelectedAirBase = flagValue
 	PrintcommanderInfoLabel()
 	return nil
@@ -928,6 +917,7 @@ function SetupEWRNetwork()
 				Red_Air_Spawn_Hard_MIG23 = SPAWN:New( "IRQ SQ HARD MIG23" ):InitGrouping(2):InitLimit(4,2)
 				
 				Red_Air_Spawn_A2G_SU25T = SPAWN:New( "IRQ SQ A2G SU25T" ):InitGrouping(2):InitLimit(4,2)
+				Red_Air_Spawn_A2G_SU34_SEAD = SPAWN:New( "IRQ SQ A2G SU34 SEAD" ):InitGrouping(2):InitLimit(4,2)
 				Red_Air_Spawn_A2G_SU34 = SPAWN:New( "IRQ SQ A2G SU34" ):InitGrouping(2):InitLimit(4,2)
 				Red_Air_Spawn_A2G_TU22 = SPAWN:New( "IRQ SQ A2G TU22" ):InitGrouping(2):InitLimit(4,2)
 				
@@ -963,8 +953,9 @@ function SetupEWRNetwork()
 				
 				GAME_MASTER_SPAWN_GROUP_A2G = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G, nil)
 				GAME_MASTER_Spawn_A2G_SU25T = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_SU25T, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 41)
-				GAME_MASTER_Spawn_A2G_SU34 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_SU34, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 42)
-				GAME_MASTER_Spawn_A2G_TU22 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_TU22, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 43)
+				GAME_MASTER_Spawn_A2G_SU34_SEAD = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_SU34_SEAD, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 42)
+				GAME_MASTER_Spawn_A2G_SU34 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_SU34, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 43)
+				GAME_MASTER_Spawn_A2G_TU22 = missionCommands.addCommandForCoalition(coalition.side.RED, string_GAME_MASTER_Spawn_A2G_TU22, GAME_MASTER_SPAWN_GROUP_A2G, HandleGameMasterPlaneSpawn, 44)
 				
 				-- set default airbase
 				HandleGameMasterAirBase(AIRBASE.PersianGulf.Bandar_Abbas_Intl)
