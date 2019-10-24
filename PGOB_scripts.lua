@@ -18,6 +18,8 @@ Flag_AWACS_STARTUP = '40'
 Flag_AWACS_RED_STARTUP = '41'
 Flag_BLUE_IN_RED_BORDER = '95'
 
+Flag_GM_SAM_SPAWN = '555'
+
 -- flags 80 to 89 are reserved for in-editor stuff!
 
 Flag_PERKS_Activate_Cruise_Missile_Strike = '20'
@@ -52,8 +54,9 @@ string_SAM_engage_missiles_on = 'SAMs engage missiles.'
 string_SAM_engage_missiles_off = 'SAMs will not engage missiles.'
 
 string_SAM_GM = 'Change SAM game master settings'
-string_SAM_GM_on = 'Game master can spawn SAMs'
 string_SAM_GM_off = 'Game master cannot spawn SAMs.'
+string_SAM_GM_red = 'Only red master can spawn SAMs'
+string_SAM_GM_all = 'All players can spawn SAMs'
 
 -- AWACS
 string_AWACS_settings = 'Change AWACS setting'
@@ -106,14 +109,11 @@ string_GM_airbase_startup_AIR = 'Air spawn'
 
 string_GM_select_airbase = 'Select spawn airbase'
 
-string_GM_select_air_zone = 'Select air spawn zone'
-
-string_GM_select_SAM_zone = 'Select SAM spawn zone'
-string_GM_spawn_SAM = 'Spawn SAM at zone'
+string_GM_select_SAM_zone = 'Select SAM template'
+--string_GM_spawn_SAM = 'Spawn SAM at zone'
 
 string_GM_Spawn_Flight = 'Spawn selected plane at ...'
 string_GM_Spawn_Flight_AIRBASE = 'Airbase'
-string_GM_Spawn_Flight_ZONE = 'Zone'
 
 string_GM_Spawn_AntiAir = 'Spawn anti air'
 string_GM_Select_AntiAir = 'Select anti air spawn zone'
@@ -126,6 +126,94 @@ bool_blueUnitsDetectedState = false
 bool_mSamBorderIntact = true
 bool_mSamSuppressedByJammers = false
 bool_mSamsActive = true
+
+-- Create difficulty settings
+table_settingsStore = {}
+table_phalanx = {}
+table_gameMasterSpawns = {}
+table_gameMasterSpawnsCmdDrone = {}
+table_gameMasterSpawnsCmdEasy = {}
+table_gameMasterSpawnsCmdFair = {}
+table_gameMasterSpawnsCmdHard = {}
+table_gameMasterSpawnsCmdA2G = {}
+table_airbases = {}
+table_airbaseCmds = {}
+bool_firstRunDone = false
+
+table_gameMasterSAMs = {}
+table_gameMasterSAMsCmds = {}
+
+bool_airCommanderInitComplete = false
+bool_SamCommanderInitComplete = false
+
+bool_airCommanderIsRed = false
+bool_airCommanderIsEveryone = false
+
+int_selectedAirbaseToSpawn = AIRBASE.PersianGulf.Bandar_Abbas_Intl
+int_spawnSelectedZone = 0
+int_selectedStartupType = SPAWN.Takeoff.Cold
+int_selectedPlaneToSpawn = 0
+int_selectedSamZone = 0
+int_selectedSamSpawn = 0
+int_settingsSamsGm = 0 -- 0: off, 1 red only, 2 all
+
+
+
+-- setting up event handlers to listen for DCS events
+
+
+customEventHandler = {}
+string_spawnCmd = "SPAWN"
+string_spawnSamCmd = "SPAWN_SAM"
+
+function PrintCurrentSettings()
+	if bool_firstRunDone == true then
+		local currentSettings = "Current settings:\n"
+	
+		local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	
+		currentSettings = currentSettings .. "--------------------- \n"
+		currentSettings = currentSettings .. "1. Air to air: \n"
+		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
+		if airDensity == 4 then
+			currentSettings = currentSettings .. "          Types: Under human control (muahahahar) \n"
+		else
+			currentSettings = currentSettings .. '          Types: ' .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
+		end
+	
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+	
+		currentSettings = currentSettings .. "2. SAM threat: \n"
+		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_SAM] .. "\n"
+		currentSettings = currentSettings .. '          Missile behaviour: ' .. table_settingsStore[Flag_SAM_MISSILES] .. "\n"
+		currentSettings = currentSettings .. '          Game Master: ' .. table_settingsStore[Flag_GM_SAM_SPAWN] .. "\n"
+	
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+	
+		currentSettings = currentSettings .. "3. AWACS setup: " .. table_settingsStore[Flag_AWACS] .. "\n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+	
+		currentSettings = currentSettings .. "4. Tankers: " .. table_settingsStore[Flag_TANKER] .. " \n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+	
+		currentSettings = currentSettings .. "5. Primary Target: " .. table_settingsStore[Flag_PRIMARY] .. " \n"
+		currentSettings = currentSettings .. "\n"
+		currentSettings = currentSettings .. "\n"
+	
+		--currentSettings = currentSettings .. "6. Available Perk: " .. table_settingsStore[Flag_PERKS] .. " \n"
+		--currentSettings = currentSettings .. "\n"
+		--currentSettings = currentSettings .. "\n"
+	
+		trigger.action.outText(currentSettings, 30)
+		trigger.action.outSound('l10n/DEFAULT/set_bar_01.ogg')
+	end
+	
+	return nil
+end
 
 -- There was some DCS trigger hookup when I tried merge all those handle function ... so I was too lazy to figure what was going wrong.
 -- flagValue was a bigger object with both the flag and its value ... but somehow it then did not properly call setUserFlag ... dont know.
@@ -197,7 +285,14 @@ end
 
 function handleSamGmSetting(value)
 	int_settingsSamsGm = value
-	trigger.action.outText("Game master SAM setting set to  " .. int_settingsSamsGm, 30)
+	
+	if int_settingsSamsGm == 0 then
+		table_settingsStore[Flag_GM_SAM_SPAWN] = string_SAM_GM_off
+	elseif int_settingsSamsGm == 1 then
+		table_settingsStore[Flag_GM_SAM_SPAWN] = string_SAM_GM_red
+	elseif int_settingsSamsGm == 2 then
+		table_settingsStore[Flag_GM_SAM_SPAWN] = string_SAM_GM_all
+	end
 	
 	PrintCurrentSettings()
 	return nil
@@ -324,9 +419,10 @@ function removeSettings()
 	missionCommands.removeItem(SAM_high)
 	missionCommands.removeItem(SAM_Missile_off)
 	missionCommands.removeItem(SAM_Missile_on)
-	--missionCommands.removeItem(SAM_gm_off)
-	--missionCommands.removeItem(SAM_gm_on)
-	--missionCommands.removeItem(SAM_gm_setting)
+	missionCommands.removeItem(SAM_gm_off)
+	missionCommands.removeItem(SAM_gm_red)
+	missionCommands.removeItem(SAM_gm_all)
+	missionCommands.removeItem(SAM_gm_setting)
 	missionCommands.removeItem(SAM_missile_setting)
 	missionCommands.removeItem(SAM_threat_setting)
 	missionCommands.removeItem(SAM_setup_setting)
@@ -384,6 +480,17 @@ function HandleStart()
 end
 
 function createMissionSettings()
+	-- reasonable defaults
+	handleA2ADensitySetting(0)
+	handleA2ADifficultySetting(0)
+	handleSAMSetting(0)
+	handleSamMissileSetting(0)
+	handleAwacsSetting(0)
+	handleTankerSetting(0)
+	handlePrimarySetting(0)
+	handleSamGmSetting(0)
+	--handlePerkSetting(0)
+
 	CMD_missionStart = missionCommands.addCommand(string_startMission, nil, HandleStart)
 	
 	A2A_density_setting = missionCommands.addSubMenu(string_A2A_density_settings)
@@ -412,9 +519,10 @@ function createMissionSettings()
 	SAM_mis_off = missionCommands.addCommand(string_SAM_engage_missiles_off, SAM_mis_setting, handleSamMissileSetting, 0)
 	SAM_mis_on = missionCommands.addCommand(string_SAM_engage_missiles_on, SAM_mis_setting, handleSamMissileSetting, 1)
 	
-	--SAM_gm_setting = missionCommands.addSubMenu(string_SAM_GM, SAM_setup_setting)
-	--SAM_gm_off = missionCommands.addCommand(string_SAM_GM_off, SAM_gm_setting, handleSamGmSetting, 0)
-	--SAM_gm_on = missionCommands.addCommand(string_SAM_GM_on, SAM_gm_setting, handleSamGmSetting, 1)
+	SAM_gm_setting = missionCommands.addSubMenu(string_SAM_GM, SAM_setup_setting)
+	SAM_gm_off = missionCommands.addCommand(string_SAM_GM_off, SAM_gm_setting, handleSamGmSetting, 0)
+	SAM_gm_red = missionCommands.addCommand(string_SAM_GM_red, SAM_gm_setting, handleSamGmSetting, 1)
+	SAM_gm_all = missionCommands.addCommand(string_SAM_GM_all, SAM_gm_setting, handleSamGmSetting, 2)
 		
 	AWACS_setting = missionCommands.addSubMenu(string_AWACS_settings)
 	AWACS_off = missionCommands.addCommand(string_AWACS_NONE, AWACS_setting, handleAwacsSetting, 0)
@@ -439,16 +547,7 @@ function createMissionSettings()
 	--PERKS_Cruise_Missiles = missionCommands.addCommand(string_Perks_Cruise_Missiles, PERKS_setting, handlePerkSetting, 1)
 	--PERKS_Jammer_Attack = missionCommands.addCommand(string_Perks_Jamming_Attack, PERKS_setting, handlePerkSetting, 2)
 	
-	-- reasonable defaults
-	handleA2ADensitySetting(1)
-	handleA2ADifficultySetting(0)
-	handleSAMSetting(1)
-	handleSamMissileSetting(0)
-	handleAwacsSetting(1)
-	handleTankerSetting(3)
-	handlePrimarySetting(0)
-	handleSamGmSetting(0)
-	--handlePerkSetting(0)
+	
 	
 	if bool_allowDebug == true then
 		Debug_setting = missionCommands.addSubMenu(string_Debug_settings)
@@ -461,60 +560,7 @@ function createMissionSettings()
 	return nil
 end
 
--- a bit too convoluted. Let us just create a lookup table for that later.
-function PrintCurrentSettings()
-	if bool_firstRunDone == true then
-		local currentSettings = "Current settings:\n"
-		
-		local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
-		
-		currentSettings = currentSettings .. "--------------------- \n"
-		currentSettings = currentSettings .. "1. Air to air: \n"
-		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
-		if airDensity == 4 then
-			currentSettings = currentSettings .. "          Types: Under human control (muahahahar) \n"
-		else
-			currentSettings = currentSettings .. '          Types: ' .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
-		end
-		
-		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
-		
-		currentSettings = currentSettings .. "2. SAM threat: \n"
-		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_SAM] .. "\n"
-		currentSettings = currentSettings .. '          Missile behaviour: ' .. table_settingsStore[Flag_SAM_MISSILES] .. "\n"
-		
-		if int_settingsSamsGm == 0 then
-			currentSettings = currentSettings .. '          Game Master: - \n'
-		else
-			currentSettings = currentSettings .. '          Game Master: Anti Air Spawn Allowed! \n'
-		end
-		
-		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
-		
-		currentSettings = currentSettings .. "3. AWACS setup: " .. table_settingsStore[Flag_AWACS] .. "\n"
-		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
-		
-		currentSettings = currentSettings .. "4. Tankers: " .. table_settingsStore[Flag_TANKER] .. " \n"
-		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
-		
-		currentSettings = currentSettings .. "5. Primary Target: " .. table_settingsStore[Flag_PRIMARY] .. " \n"
-		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
-		
-		--currentSettings = currentSettings .. "6. Available Perk: " .. table_settingsStore[Flag_PERKS] .. " \n"
-		--currentSettings = currentSettings .. "\n"
-		--currentSettings = currentSettings .. "\n"
-		
-		trigger.action.outText(currentSettings, 30)
-		trigger.action.outSound('l10n/DEFAULT/set_bar_01.ogg')
-	end
-	
-	return nil
-end
+
 
 function StartBandarLengehCAP_L39()
 	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
@@ -651,96 +697,79 @@ function SpawnSAMs()
 		if samThreat == 1 then
 			iPhalanxCounter = 4
 			MainSamZones = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" )}
-			
+	
 			Spawn_MAIN_SA2 = SPAWN:New( "IRQ EWR SA-2" ):InitRandomizeZones( MainSamZones ):Spawn()
-			
+	
 		elseif samThreat > 1 then
 			iPhalanxCounter = 6
 			SamZoneTable = { ZONE:New( "SamSpawnZone2" ), ZONE:New( "SamSpawnZone3" ), ZONE:New( "SamSpawnZone5" ), ZONE:New( "SamSpawnZone6" ), ZONE:New( "SamSpawnZone7" ), ZONE:New( "SamSpawnZone8" ), ZONE:New( "SamSpawnZone9" ), ZONE:New( "SamSpawnZone10" ), ZONE:New( "SamSpawnZone11" ), ZONE:New( "SamSpawnZone12" ) }
-			
+	
 			-- spawn an SA-10
 			SAM6 = SPAWN:New( "IRQ EWR SA-10" ):InitRandomizeZones( SamZoneTable ):Spawn()
-			
+	
 			-- spawn lots of AAA
 			SpawnZU23 = SPAWN:New('IRQ EWR ZU23')
 			ZoneAAA_01 = ZONE:New( "ZoneAAA_01" )
 			ZoneAAA_02 = ZONE:New( "ZoneAAA_02" )
 			ZoneAAA_03 = ZONE:New( "ZoneAAA_03" )
 			ZoneAAA_04 = ZONE:New( "ZoneAAA_04" )
-			
+	
 			SpawnZU23:SpawnInZone(ZoneAAA_01)
 			SpawnZU23:SpawnInZone(ZoneAAA_02)
 			SpawnZU23:SpawnInZone(ZoneAAA_03)
 			SpawnZU23:SpawnInZone(ZoneAAA_04)
-			
+	
 			if samThreat > 2 then
 				iPhalanxCounter = 8
 				SAM4 = SPAWN:New( "IRQ EWR SA-2" ):InitRandomizeZones( SamZoneTable ):Spawn()
 			end
 		end
-		
+	
 		if IsDebuggingOn() == true then
 			trigger.action.outText("Phalanx size is " .. iPhalanxCounter, 10)
 		end
-		
+	
 		PhalanxSpawnTable = { ZONE:New( "SamPhalanx1" ), ZONE:New( "SamPhalanx2" ), ZONE:New( "SamPhalanx3" ), ZONE:New( "SamPhalanx4" ), ZONE:New( "SamPhalanx5" ), ZONE:New( "SamPhalanx6" ), ZONE:New( "SamPhalanx7" ), ZONE:New( "SamPhalanx8" ), ZONE:New( "SamPhalanx9" ), ZONE:New( "SamPhalanx10" ), ZONE:New( "SamPhalanx11" ), ZONE:New( "SamPhalanx12" ), ZONE:New( "SamPhalanx13" ), ZONE:New( "SamPhalanx14" ), ZONE:New( "SamPhalanx15" ), ZONE:New( "SamPhalanx16" ), ZONE:New( "SamPhalanx17" ), ZONE:New( "SamPhalanx18" ), ZONE:New( "SamPhalanx19" ), ZONE:New( "SamPhalanx20" ), ZONE:New( "SamPhalanx21" ), ZONE:New( "SamPhalanx22" ), ZONE:New( "SamPhalanx23" ), ZONE:New( "SamPhalanx24" ), ZONE:New( "SamPhalanx25" )}
-		
+	
 		SA_15_Randomized = SPAWN:New( "IRQ EWR SA-15" ):InitRandomizeZones( PhalanxSpawnTable )
-		
+	
 		for i=1,iPhalanxCounter,1 do
 			if bool_allowDebug == true then
 				trigger.action.outText("Spawn Phalanx " .. i, 10)
 			end
 			table_phalanx[i] = SA_15_Randomized:Spawn()
 		end
-		
+	
 		trigger.action.outText("SAM setup completed", 10)
 	end
 	
-	if int_settingsSamsGm == 1 then
+	if int_settingsSamsGm > 0 then
+		trigger.action.outText("Setting up SAM controls for game master", 30)
+	
+		table_gameMasterSAMs[0] = { mySpawnType = SPAWN:New("IRQ EWR SA-2 GM"), mySpawnName = "SA-2"}
+		table_gameMasterSAMs[1] = { mySpawnType = SPAWN:New("IRQ EWR SA-10 GM"), mySpawnName = "SA-10"}
+		table_gameMasterSAMs[2] = { mySpawnType = SPAWN:New("IRQ EWR SA-15 GM"), mySpawnName = "SA-15"}
+		table_gameMasterSAMs[3] = { mySpawnType = SPAWN:New("IRQ EWR SA-3 GM"), mySpawnName = "SA-3"}
+		table_gameMasterSAMs[4] = { mySpawnType = SPAWN:New("IRQ EWR SA-6 GM"), mySpawnName = "SA-6"}
+		table_gameMasterSAMs[5] = { mySpawnType = SPAWN:New("IRQ EWR Shilka GM"), mySpawnName = "Shilka"}
+		table_gameMasterSAMs[6] = { mySpawnType = SPAWN:New("IRQ EWR SITE ISLAND GM"), mySpawnName = "EW site"}
 		
-		--	Spawn_SAM_SA2 = SPAWN:New( "IRQ EWR SA-2" )
-		--	Spawn_SAM_SA10 = SPAWN:New( "IRQ EWR SA-10" )
-		--	Spawn_SAM_SA15 = SPAWN:New( "IRQ EWR SA-15" )
-		--	Spawn_SAM_HAWK = SPAWN:New('IRQ EWR HAWK')
-		--	Spawn_SAM_ZU23 = SPAWN:New('IRQ EWR ZU23')
-		--	Spawn_Shilka = SPAWN:New('IRQ EWR Shilka')
-		--	
-		--	trigger.action.outText("Setting up SAM control for game master", 30)
-		--	
-		--	CMD_GAME_MASTER_SELECT_SAM_ZONE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_select_SAM_zone, nil)
-		--	
-		--	--table_sam_zones = {}
-		--	--table_sam_zonesCmds = {}
-		--	
-		--	table_sam_zones[0] = {myZoneName = "GM_SAM_01", myZone = ZONE:New( "GM_SAM_01" )}
-		--	table_sam_zones[1] = {myZoneName = "GM_SAM_02", myZone = ZONE:New( "GM_SAM_02" )}
-		--	table_sam_zones[2] = {myZoneName = "GM_SAM_03", myZone = ZONE:New( "GM_SAM_03" )}
-		--	table_sam_zones[3] = {myZoneName = "GM_SAM_04", myZone = ZONE:New( "GM_SAM_04" )}
-		--	table_sam_zones[4] = {myZoneName = "GM_SAM_05", myZone = ZONE:New( "GM_SAM_05" )}
-		--	table_sam_zones[5] = {myZoneName = "GM_SAM_06", myZone = ZONE:New( "GM_SAM_06" )}
-		--	table_sam_zones[6] = {myZoneName = "GM_SAM_07", myZone = ZONE:New( "GM_SAM_07" )}
-		--	
-		--	for key, tableValue in pairs(table_sam_zones) do
-		--		--trigger.action.outText("Key: " .. key .. " / Name: " .. tableValue.myZoneName, 14 )
-		--		
-		--		table_sam_zonesCmds[key] = missionCommands.addCommandForCoalition(coalition.side.RED, tableValue.myZoneName, CMD_GAME_MASTER_SELECT_SAM_ZONE, HandleGameMasterSelectSamZone, key)
-		--	end
-		--	
-		--	table_gameMasterSpawns[0] = { mySpawnType = Spawn_SAM_SA2, mySpawnName = "IRQ EWR SA-2"}
-		--	table_gameMasterSpawns[1] = { mySpawnType = Spawn_SAM_SA10, mySpawnName = "IRQ EWR SA-10"}
-		--	table_gameMasterSpawns[2] = { mySpawnType = Spawn_SAM_SA15, mySpawnName = "IRQ EWR SA-15"}
-		--	table_gameMasterSpawns[3] = { mySpawnType = Spawn_SAM_HAWK, mySpawnName = "IRQ EWR HAWK"}
-		--	table_gameMasterSpawns[4] = { mySpawnType = Spawn_SAM_ZU23, mySpawnName = "IRQ EWR ZU23"}
-		--	table_gameMasterSpawns[5] = { mySpawnType = Spawn_Shilka, mySpawnName = "IRQ EWR Shilka"}
-		--	
-		--	CMD_GAME_MASTER_SELECT_SAM_TYPE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_spawn_SAM, nil)
-		--	
-		--	for key, value in pairs(table_gameMasterSpawns) do
-		--		table_airbaseCmds[key] = missionCommands.addCommandForCoalition(coalition.side.RED, value.mySpawnName, CMD_GAME_MASTER_SELECT_SAM_TYPE, HandleGameMasterSpawnSAM, key)
-		--	end
-		--	bool_samCommanderInitComplete = true
-		--	trigger.action.outText("Game master SAM control established", 30)
+		bool_SamCommanderInitComplete = true
+	
+		if int_settingsSamsGm == 1 then
+			CMD_GAME_MASTER_SELECT_SAM_TYPE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_select_SAM_zone, nil)
+	
+			for key, value in pairs(table_gameMasterSAMs) do
+				table_gameMasterSAMsCmds[key] = missionCommands.addCommandForCoalition(coalition.side.RED, value.mySpawnName, CMD_GAME_MASTER_SELECT_SAM_TYPE, HandleGameMasterSelectSamTemplate, key)
+			end
+	
+		elseif int_settingsSamsGm == 2 then
+			CMD_GAME_MASTER_SELECT_SAM_TYPE = missionCommands.addSubMenu(string_GM_select_SAM_zone, nil)
+	
+			for key, value in pairs(table_gameMasterSAMs) do
+				table_gameMasterSAMsCmds[key] = missionCommands.addCommand(value.mySpawnName, CMD_GAME_MASTER_SELECT_SAM_TYPE, HandleGameMasterSelectSamTemplate, key)
+			end
+		end
 	end
 	
 	return nil
@@ -770,7 +799,6 @@ function SpawnSAMsFixed()
 			Spawn_SA2_Fixed:SpawnInZone(ZoneSA2Island, true)
 		end
 	end
-	
 end
 
 -- this is to cache all EWR units for later reuse
@@ -792,11 +820,9 @@ function HandleGameMasterSelectSamZone(flagValue)
 	return nil
 end
 
-function HandleGameMasterSpawnSAM(givenValue)
+function HandleGameMasterSelectSamTemplate(givenValue)
 	int_selectedSamSpawn = givenValue
-	
-	table_gameMasterSpawns[int_selectedSamSpawn].mySpawnType:SpawnInZone( table_sam_zones[int_selectedSamZone].myZone, true )
-	
+	PrintSAMForCoalition("Value changed to " .. int_selectedSamSpawn, 40)
 	PrintcommanderInfoLabel()
 	return nil
 end
@@ -808,20 +834,30 @@ function HandleGameMasterSelectAirSpawnZone(givenValue)
 end
 
 function HandleGameMasterPlaneSpawn(airbaseOrZone)
-	
-	
 	if airbaseOrZone == 0 then
 		trigger.action.outText("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected airbase " .. int_selectedAirbaseToSpawn , 3000)
 		
 		table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnAtAirbase( AIRBASE:FindByName( int_selectedAirbaseToSpawn ), int_selectedStartupType )
 	elseif airbaseOrZone == 1 then
-	
-		trigger.action.outText("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at zone " .. table_zones[int_spawnSelectedZone].myZoneName , 3000)
-		
-		table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnInZone( table_zones[int_spawnSelectedZone].myZone , true, 2000, 4000 )  
+		-- removed, use labels instead
 	end
 	PrintcommanderInfoLabel()
-	
+end
+
+function HandleGameMasterSpawnPlaneAtPos(vec3_position)
+	PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 60)	
+	local vec3_corrected = vec3_position	
+	vec3_corrected.y = vec3_corrected.y + 2000 -- add two thousand meters above ground for air units	
+	lastSpawnCoordinate = COORDINATE:NewFromVec3(vec3_corrected)	
+	table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnFromCoordinate(lastSpawnCoordinate)
+	PrintcommanderInfoLabel()
+end
+
+function HandleGameMasterSpawnSAMAtPos(vec3_position)
+	PrintSAMForCoalition("Trying to spawn " .. table_gameMasterSAMs[int_selectedSamSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 60)
+	lastSamSpawnCoordinate = COORDINATE:NewFromVec3(vec3_position)
+	table_gameMasterSAMs[int_selectedSamSpawn].mySpawnType:SpawnFromCoordinate(lastSamSpawnCoordinate)
+	PrintcommanderInfoLabel()
 end
 
 function HandleGameMasterAirBase(flagValue)
@@ -836,16 +872,25 @@ function HandleStartupType(flagValue)
 	return nil
 end
 
+function PrintAirForCoalition(textContent, duration)
+	if bool_airCommanderIsRed == true then
+		trigger.action.outTextForCoalition(coalition.side.RED, textContent, duration)
+	elseif bool_airCommanderIsEveryone == true then
+		trigger.action.outText(textContent, duration)
+	end
+end
+
+function PrintSAMForCoalition(textContent, duration)
+	if int_settingsSamsGm == 1 then
+		trigger.action.outTextForCoalition(coalition.side.RED, textContent, duration)
+	elseif int_settingsSamsGm == 2 then
+		trigger.action.outText(textContent, duration)
+	end
+end
+
 function PrintcommanderInfoLabel()
-	local commanderInfoLabel = "-----------------------\n"
-	commanderInfoLabel = commanderInfoLabel .. "Red commander overview:\n"
-	local commanderInfoLabel = "-----------------------\n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
-	trigger.action.outTextForCoalition(coalition.side.RED, commanderInfoLabel, 3000)
-	
 	PrintcommanderInfoLabelSAM()
 	PrintcommanderInfoLabelAIR()
-	
 	return nil
 end
 
@@ -855,33 +900,25 @@ function PrintcommanderInfoLabelSAM()
 		return nil
 	end
 	
-	local commanderInfoLabel = "-----------------------\n"
-	commanderInfoLabel = commanderInfoLabel .. "Selected SAM Zone:"
-	commanderInfoLabel = commanderInfoLabel ..table_sam_zones[int_spawnSelectedZone].myZoneName .. " \n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
+	local commanderInfoLabel = "SAM spawn overview\n"
+	commanderInfoLabel = commanderInfoLabel ..  "Select a template type in the F-10 menu and use a map marker with the label 'SPAWN_SAM' to spawn the slected SAM template at that position. \n"
 	
-	commanderInfoLabel = commanderInfoLabel .. "\n"
-	
-	trigger.action.outTextForCoalition(coalition.side.RED, commanderInfoLabel, 3000)
+	commanderInfoLabel = commanderInfoLabel ..  "Currently selected template: " .. table_gameMasterSAMs[int_selectedSamSpawn].mySpawnName .. "\n"
+	PrintSAMForCoalition(commanderInfoLabel, 3000)
 	return nil
 end
 
 function PrintcommanderInfoLabelAIR()
-
 	if bool_airCommanderInitComplete == false then
 		return nil
 	end
 
-	local commanderInfoLabel = "-----------------------\n"
-	commanderInfoLabel = commanderInfoLabel .. "Red commander overview:\n"
-	local commanderInfoLabel = "-----------------------\n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
-	
 	-- airbase
-	commanderInfoLabel = commanderInfoLabel .. "1. Selected spawn airbase: \n" .. table_airbases[int_selectedAirbaseToSpawn] .. "\n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
+	local commanderInfoLabel = "Air spawn overview\n"
+	commanderInfoLabel = commanderInfoLabel ..  "Either spawn an aircraft via the F-10 menu at or around and air base or use a map marker with the label 'SPAWN' to spawn the current group in place. \n"
+	commanderInfoLabel = commanderInfoLabel ..  "1. Selected spawn airbase: " .. table_airbases[int_selectedAirbaseToSpawn] .. "\n"
 	
-	commanderInfoLabel = commanderInfoLabel .. "2. Selected airbase spawn type: \n"
+	commanderInfoLabel = commanderInfoLabel .. "2. Selected airbase spawn type: "
 	-- spawn type at air base
 	if int_selectedStartupType == SPAWN.Takeoff.Cold then
 		commanderInfoLabel = commanderInfoLabel .. "Cold \n"
@@ -889,28 +926,21 @@ function PrintcommanderInfoLabelAIR()
 		commanderInfoLabel = commanderInfoLabel .. "Hot \n"
 	elseif int_selectedStartupType == SPAWN.Takeoff.Air then
 		commanderInfoLabel = commanderInfoLabel .. "Air \n"
+	else
+		commanderInfoLabel = commanderInfoLabel .. "\n"
 	end
-	commanderInfoLabel = commanderInfoLabel .. "\n"
 	
-	-- zones
-	commanderInfoLabel = commanderInfoLabel .. "3. Selecteded spawn zone: " .. table_zones[int_spawnSelectedZone].myZoneName .. "\n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
-		
 	--selected spawn airplane
-	commanderInfoLabel = commanderInfoLabel .. "4. Selected group to spawn:"
+	commanderInfoLabel = commanderInfoLabel .. "3. Selected group to spawn:"
 	commanderInfoLabel = commanderInfoLabel ..table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " \n"	
 	commanderInfoLabel = commanderInfoLabel .. "\n"
-	commanderInfoLabel = commanderInfoLabel .. "\n"
-	trigger.action.outTextForCoalition(coalition.side.RED, commanderInfoLabel, 3000)
+	
+	PrintAirForCoalition(commanderInfoLabel, 3000)
 	return nil
 end
 
-
-
 function SetupEWRNetwork()
-	trigger.action.outText("Checking Detection Network", 10)
 	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
-	--trigger.action.outText("DENSITY VALUE IS " .. airDensity, 10)
 	local samThreat = trigger.misc.getUserFlag(Flag_SAM)
 	local debuggerEnabled = IsDebuggingOn()
 	bBlueInRedZone = false
@@ -976,8 +1006,6 @@ function SetupEWRNetwork()
 			elseif airDensity == 3 then
 				bandarAbbasPlanesCount = 6
 			end
-						
-			--trigger.action.outText("Squadrons set: Plane count " .. bandarAbbasPlanesCount .. ", difficulty " .. airDifficulty .. " " .. "!!!", 100)
 			
 			A2ADispatcher:SetSquadron("BandarAbbasSq", AIRBASE.PersianGulf.Bandar_Abbas_Intl, enemyPlanesTypes, bandarAbbasPlanesCount )
 			A2ADispatcher:SetIntercept( 120 )
@@ -1004,11 +1032,13 @@ function SetupEWRNetwork()
 		else
 			Detection:Start()
 			
-			if airDensity > 3 then
-				-- red is under enemy control
-				
-				-- airplanes
-				
+			if airDensity == 4 then
+				bool_airCommanderIsRed = true
+			elseif airDensity == 5 then
+				bool_airCommanderIsEveryone = true
+			end
+			
+			if bool_airCommanderIsRed == true or bool_airCommanderIsEveryone == true then
 				table_gameMasterSpawns[1] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone C101" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone C101"}
 				table_gameMasterSpawns[2] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone IL78" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone IL78"}
 				table_gameMasterSpawns[3] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone SU30" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone SU30"}
@@ -1024,10 +1054,11 @@ function SetupEWRNetwork()
 				table_gameMasterSpawns[34] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard F4" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard F4"}
 				table_gameMasterSpawns[35] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard MIG31" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard MIG31"}
 				table_gameMasterSpawns[36] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ HARD MIG23" ):InitGrouping(2), mySpawnName = "IRQ SQ HARD MIG23"}
-				table_gameMasterSpawns[41] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU25T" ):InitGrouping(2), mySpawnName = "IRQ SQ A2G SU25T"}
-				table_gameMasterSpawns[42] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 SEAD" ):InitGrouping(2), mySpawnName = "IRQ SQ A2G SU34 SEAD"}
-				table_gameMasterSpawns[43] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34" ):InitGrouping(2), mySpawnName = "IRQ SQ A2G SU34"}
-				table_gameMasterSpawns[44] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G TU22" ):InitGrouping(2), mySpawnName = "IRQ SQ A2G TU22"}
+				table_gameMasterSpawns[41] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU25T CAS" ):InitGrouping(2), mySpawnName = "SU25T CAS"}
+				table_gameMasterSpawns[42] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU25T Anti-ship" ):InitGrouping(2), mySpawnName = "SU25T Anti-ship"}
+				table_gameMasterSpawns[43] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 SEAD" ):InitGrouping(2), mySpawnName = "SU34 SEAD"}
+				table_gameMasterSpawns[44] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 Ground Attack" ):InitGrouping(2), mySpawnName = "SU34 Ground Attack"}
+				table_gameMasterSpawns[45] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G TU22 Ground Attack" ):InitGrouping(2), mySpawnName = "TU22 Ground Attack"}
 				
 				-- airbases
 				table_airbases[AIRBASE.PersianGulf.Bandar_Abbas_Intl] = "Bandar Abbas"
@@ -1037,16 +1068,15 @@ function SetupEWRNetwork()
 				table_airbases[AIRBASE.PersianGulf.Qeshm_Island] = "Qeshm_Island"
 				table_airbases[AIRBASE.PersianGulf.Shiraz_International_Airport] = "Shiraz"
 				
-								-- zones
-				table_zones[0] = {myZoneName = "NorthEastOfKhasab", myZone = ZONE:New( "GameMaster_NorthEastOfKhasab" )}
-				table_zones[1] = {myZoneName = "NorthOfLar", myZone =ZONE:New( "GameMaster_NorthOfLar" )}
-				table_zones[2] = {myZoneName = "WestOfKhasab_Sea", myZone = ZONE:New( "GameMaster_WestOfKhasab_Sea" )}
-				table_zones[3] = {myZoneName = "NorthOfBandarAbbas", myZone = ZONE:New( "GameMaster_NorthOfBandarAbbas" )}
+				-- set defaults
+				HandleGameMasterAirBase(AIRBASE.PersianGulf.Bandar_Abbas_Intl)
+				HandleStartupType(SPAWN.Takeoff.Hot)
+				HandleGameMasterPlaneSelection(1)
+				trigger.action.outText("Gave a shit ton of powah to the game master ... !", 10)
 				
-				if airDensity == 4 then
+				if bool_airCommanderIsRed == true then
 					CMD_GM_SPAWN = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_Spawn_Flight, nil)
 					CMD_GM_SPAWN_AT_AIRBASE = missionCommands.addCommandForCoalition(coalition.side.RED, string_GM_Spawn_Flight_AIRBASE, CMD_GM_SPAWN, HandleGameMasterPlaneSpawn, 0)
-					CMD_GM_SPAWN_AT_ZONE = missionCommands.addCommandForCoalition(coalition.side.RED, string_GM_Spawn_Flight_ZONE, CMD_GM_SPAWN, HandleGameMasterPlaneSpawn, 1)
 					
 					CMD_GAME_MASTER_SELECT_AIRBASE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_select_airbase, nil)
 					
@@ -1058,11 +1088,6 @@ function SetupEWRNetwork()
 					CMD_GAME_MASTER_SELECT_TYPE_COLD = missionCommands.addCommandForCoalition(coalition.side.RED, string_GM_airbase_startup_COLD, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Cold)
 					CMD_GAME_MASTER_SELECT_TYPE_HOT = missionCommands.addCommandForCoalition(coalition.side.RED, string_GM_airbase_startup_HOT, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Hot)
 					CMD_GAME_MASTER_SELECT_TYPE_AIR = missionCommands.addCommandForCoalition(coalition.side.RED, string_GM_airbase_startup_AIR, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Air)
-					
-					CMD_GAME_MASTER_SELECT_ZONE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_select_air_zone, nil)
-					for key, tableValue in pairs(table_zones) do
-						table_zonesCmds[key] = missionCommands.addCommandForCoalition(coalition.side.RED, tableValue.myZoneName, CMD_GAME_MASTER_SELECT_ZONE, HandleGameMasterSelectAirSpawnZone, key)
-					end
 					
 					CMD_GM_SELECT_FLIGHT = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_SELECT_FLIGHT, nil)
 					CMD_GM_SELECT_FLIGHT_DRONE = missionCommands.addSubMenuForCoalition(coalition.side.RED, string_GM_Select_Drone, CMD_GM_SELECT_FLIGHT)
@@ -1084,11 +1109,10 @@ function SetupEWRNetwork()
 							table_gameMasterSpawnsCmdA2G[key] = missionCommands.addCommandForCoalition(coalition.side.RED, value.mySpawnName, CMD_GM_SELECT_FLIGHT_A2G, HandleGameMasterPlaneSelection, key)
 						end
 					end
-					bool_airCommanderInitComplete = true -- only red commander gets debug info
-				else
+					bool_airCommanderInitComplete = true
+				elseif bool_airCommanderIsEveryone == true then
 					CMD_GM_SPAWN = missionCommands.addSubMenu(string_GM_Spawn_Flight, nil)
 					CMD_GM_SPAWN_AT_AIRBASE = missionCommands.addCommand( string_GM_Spawn_Flight_AIRBASE, CMD_GM_SPAWN, HandleGameMasterPlaneSpawn, 0)
-					CMD_GM_SPAWN_AT_ZONE = missionCommands.addCommand( string_GM_Spawn_Flight_ZONE, CMD_GM_SPAWN, HandleGameMasterPlaneSpawn, 1)
 					
 					CMD_GAME_MASTER_SELECT_AIRBASE = missionCommands.addSubMenu(string_GM_select_airbase, nil)
 					
@@ -1100,11 +1124,6 @@ function SetupEWRNetwork()
 					CMD_GAME_MASTER_SELECT_TYPE_COLD = missionCommands.addCommand( string_GM_airbase_startup_COLD, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Cold)
 					CMD_GAME_MASTER_SELECT_TYPE_HOT = missionCommands.addCommand( string_GM_airbase_startup_HOT, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Hot)
 					CMD_GAME_MASTER_SELECT_TYPE_AIR = missionCommands.addCommand( string_GM_airbase_startup_AIR, CMD_GAME_MASTER_SELECT_TYPE, HandleStartupType, SPAWN.Takeoff.Air)
-					
-					CMD_GAME_MASTER_SELECT_ZONE = missionCommands.addSubMenu(string_GM_select_air_zone, nil)
-					for key, tableValue in pairs(table_zones) do
-						table_zonesCmds[key] = missionCommands.addCommand( tableValue.myZoneName, CMD_GAME_MASTER_SELECT_ZONE, HandleGameMasterSelectAirSpawnZone, key)
-					end
 					
 					CMD_GM_SELECT_FLIGHT = missionCommands.addSubMenu(string_GM_SELECT_FLIGHT, nil)
 					CMD_GM_SELECT_FLIGHT_DRONE = missionCommands.addSubMenu(string_GM_Select_Drone, CMD_GM_SELECT_FLIGHT)
@@ -1126,14 +1145,8 @@ function SetupEWRNetwork()
 							table_gameMasterSpawnsCmdA2G[key] = missionCommands.addCommand( value.mySpawnName, CMD_GM_SELECT_FLIGHT_A2G, HandleGameMasterPlaneSelection, key)
 						end
 					end
+					bool_airCommanderInitComplete = true
 				end
-				
-				
-				-- set default airbase
-				HandleGameMasterAirBase(AIRBASE.PersianGulf.Bandar_Abbas_Intl)
-				HandleStartupType(SPAWN.Takeoff.Hot)
-				HandleGameMasterPlaneSelection(11)
-				trigger.action.outText("Gave a shit ton of powah to the game master ... !", 10)
 			end
 		end
 		
@@ -1194,7 +1207,6 @@ function UpdateSamState()
 		end
 	end
 	
-	
 	if boolSamsCanFire == false and bool_mSamsActive == true then
 		bool_mSamsActive = false
 		
@@ -1235,36 +1247,47 @@ function SetJammerEnabled(enabled)
 	UpdateSamState()
 end
 
--- Create difficulty settings
-table_settingsStore = {}
-table_phalanx = {}
-table_gameMasterSpawns = {}
-table_gameMasterSpawnsCmdDrone = {}
-table_gameMasterSpawnsCmdEasy = {}
-table_gameMasterSpawnsCmdFair = {}
-table_gameMasterSpawnsCmdHard = {}
-table_gameMasterSpawnsCmdA2G = {}
-table_samTemplates = {}
-table_airbases = {}
-table_airbaseCmds = {}
-table_zones = {}
-table_zonesCmds = {}
+function customEventHandler:onEvent(event)
+	if (world.event.S_EVENT_MARK_ADDED   == event.id) then
+		--trigger.action.outText("Mark added", 60)
+	end
+	
+	if (world.event.S_EVENT_MARK_CHANGE == event.id) then
+		
+		--trigger.action.outText("Mark edit", 60)
+		--			[1] ={
+		--	   idx = idxMark(IDMark),
+		--	   time = Time,
+		--	   initiator = Unit,
+		--	   coalition = -1 (or RED/BLUE),
+		--	   groupID = -1 (or ID),
+		--	   text = markText,
+		--	   pos = vec3
+		--	 }
+		table_markPanels = world.getMarkPanels()
+		
+		for key, mark in pairs(table_markPanels) do
+			if string_spawnCmd == mark.text then
+				if bool_airCommanderIsEveryone == true or (bool_airCommanderIsRed == true and mark.coalition == coalition.side.RED) then
+					HandleGameMasterSpawnPlaneAtPos(mark.pos)
+					trigger.action.removeMark(mark.idx)
+					break
+				end
+			elseif string_spawnSamCmd == mark.text then
+				if int_settingsSamsGm == 2 or (int_settingsSamsGm == 1 and mark.coalition == coalition.side.RED) then
+					HandleGameMasterSpawnSAMAtPos(mark.pos)
+					trigger.action.removeMark(mark.idx)
+					break
+				end
+			end
+		end
+	end
+	
+	if (world.event.S_EVENT_MARK_REMOVED == event.id) then
+		--trigger.action.outText("Mark removed", 60)
+	end
+end
 
-table_sam_zones = {}
-table_sam_zonesCmds = {}
-
-bool_firstRunDone = false
-
-bool_airCommanderInitComplete = false
-bool_SamCommanderInitComplete = false
-
-int_selectedAirbaseToSpawn = 0
-int_spawnSelectedZone = 0
-int_selectedStartupType = 0
-int_selectedPlaneToSpawn = 0
-int_selectedSamZone = 0
-int_selectedSamSpawn = 0
-int_settingsSamsGm = 0
+world.addEventHandler(customEventHandler);
 
 createMissionSettings()
-
