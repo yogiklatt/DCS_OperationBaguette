@@ -176,12 +176,13 @@ function PrintCurrentSettings()
 		currentSettings = currentSettings .. "1. Air to air: \n"
 		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
 		if airDensity == 4 then
-			currentSettings = currentSettings .. "          Types: Under human control (muahahahar) \n"
+			currentSettings = currentSettings .. "          Types: Under human control (red) \n"
+		elseif airDensity == 5 then
+			currentSettings = currentSettings .. "          Types: Under human control (all) \n"
 		else
 			currentSettings = currentSettings .. '          Types: ' .. table_settingsStore[Flag_A2A_DIFFICULTY] .. "\n"
 		end
 	
-		currentSettings = currentSettings .. "\n"
 		currentSettings = currentSettings .. "\n"
 	
 		currentSettings = currentSettings .. "2. SAM threat: \n"
@@ -190,18 +191,14 @@ function PrintCurrentSettings()
 		currentSettings = currentSettings .. '          Game Master: ' .. table_settingsStore[Flag_GM_SAM_SPAWN] .. "\n"
 	
 		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
 	
 		currentSettings = currentSettings .. "3. AWACS setup: " .. table_settingsStore[Flag_AWACS] .. "\n"
-		currentSettings = currentSettings .. "\n"
 		currentSettings = currentSettings .. "\n"
 	
 		currentSettings = currentSettings .. "4. Tankers: " .. table_settingsStore[Flag_TANKER] .. " \n"
 		currentSettings = currentSettings .. "\n"
-		currentSettings = currentSettings .. "\n"
 	
 		currentSettings = currentSettings .. "5. Primary Target: " .. table_settingsStore[Flag_PRIMARY] .. " \n"
-		currentSettings = currentSettings .. "\n"
 		currentSettings = currentSettings .. "\n"
 	
 		--currentSettings = currentSettings .. "6. Available Perk: " .. table_settingsStore[Flag_PERKS] .. " \n"
@@ -621,8 +618,6 @@ function StartQueshmIslandCAP()
 	F5CapZone:SetControllable( F5CapPlane )
 	F5CapZone:SetEngageZone( TigerCapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
 	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
-	
-	--trigger.action.outText("Queshm groups initiated", 10)
 	return nil
 end
 
@@ -642,8 +637,6 @@ function StartJ11CAP()
 	J11CapZone:SetControllable( J11CapPlane )
 	J11CapZone:SetEngageZone( J11CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
 	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
-	
-	--trigger.action.outText("J-11s starting up ...", 10)
 	return nil
 end
 
@@ -752,7 +745,9 @@ function SpawnSAMs()
 		table_gameMasterSAMs[3] = { mySpawnType = SPAWN:New("IRQ EWR SA-3 GM"), mySpawnName = "SA-3"}
 		table_gameMasterSAMs[4] = { mySpawnType = SPAWN:New("IRQ EWR SA-6 GM"), mySpawnName = "SA-6"}
 		table_gameMasterSAMs[5] = { mySpawnType = SPAWN:New("IRQ EWR Shilka GM"), mySpawnName = "Shilka"}
+		table_gameMasterSAMs[5] = { mySpawnType = SPAWN:New("IRQ EWR AAA GM"), mySpawnName = "AAA Enclosed"}
 		table_gameMasterSAMs[6] = { mySpawnType = SPAWN:New("IRQ EWR SITE ISLAND GM"), mySpawnName = "EW site"}
+		table_gameMasterSAMs[7] = { mySpawnType = SPAWN:New("IRQ EWR Ship Molniya GM"), mySpawnName = "Ship: Molniya"}
 		
 		bool_SamCommanderInitComplete = true
 	
@@ -822,7 +817,7 @@ end
 
 function HandleGameMasterSelectSamTemplate(givenValue)
 	int_selectedSamSpawn = givenValue
-	PrintSAMForCoalition("Value changed to " .. int_selectedSamSpawn, 40)
+	--PrintSAMForCoalition("Value changed to " .. int_selectedSamSpawn, 30)
 	PrintcommanderInfoLabel()
 	return nil
 end
@@ -835,8 +830,7 @@ end
 
 function HandleGameMasterPlaneSpawn(airbaseOrZone)
 	if airbaseOrZone == 0 then
-		trigger.action.outText("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected airbase " .. int_selectedAirbaseToSpawn , 3000)
-		
+		PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected airbase " .. int_selectedAirbaseToSpawn , 30)
 		table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnAtAirbase( AIRBASE:FindByName( int_selectedAirbaseToSpawn ), int_selectedStartupType )
 	elseif airbaseOrZone == 1 then
 		-- removed, use labels instead
@@ -845,16 +839,16 @@ function HandleGameMasterPlaneSpawn(airbaseOrZone)
 end
 
 function HandleGameMasterSpawnPlaneAtPos(vec3_position)
-	PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 60)	
+	PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 30)	
 	local vec3_corrected = vec3_position	
-	vec3_corrected.y = vec3_corrected.y + 2000 -- add two thousand meters above ground for air units	
+	vec3_corrected.y = vec3_corrected.y + 500 -- add a couple of meters above ground
 	lastSpawnCoordinate = COORDINATE:NewFromVec3(vec3_corrected)	
 	table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnFromCoordinate(lastSpawnCoordinate)
 	PrintcommanderInfoLabel()
 end
 
 function HandleGameMasterSpawnSAMAtPos(vec3_position)
-	PrintSAMForCoalition("Trying to spawn " .. table_gameMasterSAMs[int_selectedSamSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 60)
+	PrintSAMForCoalition("Trying to spawn " .. table_gameMasterSAMs[int_selectedSamSpawn].mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 30)
 	lastSamSpawnCoordinate = COORDINATE:NewFromVec3(vec3_position)
 	table_gameMasterSAMs[int_selectedSamSpawn].mySpawnType:SpawnFromCoordinate(lastSamSpawnCoordinate)
 	PrintcommanderInfoLabel()
@@ -904,7 +898,7 @@ function PrintcommanderInfoLabelSAM()
 	commanderInfoLabel = commanderInfoLabel ..  "Select a template type in the F-10 menu and use a map marker with the label 'SPAWN_SAM' to spawn the slected SAM template at that position. \n"
 	
 	commanderInfoLabel = commanderInfoLabel ..  "Currently selected template: " .. table_gameMasterSAMs[int_selectedSamSpawn].mySpawnName .. "\n"
-	PrintSAMForCoalition(commanderInfoLabel, 3000)
+	PrintSAMForCoalition(commanderInfoLabel, 30)
 	return nil
 end
 
@@ -935,7 +929,7 @@ function PrintcommanderInfoLabelAIR()
 	commanderInfoLabel = commanderInfoLabel ..table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " \n"	
 	commanderInfoLabel = commanderInfoLabel .. "\n"
 	
-	PrintAirForCoalition(commanderInfoLabel, 3000)
+	PrintAirForCoalition(commanderInfoLabel, 30)
 	return nil
 end
 
