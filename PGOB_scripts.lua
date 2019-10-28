@@ -2,7 +2,7 @@ string_startMission = 'Start mission'
 
 --bool_allowDebug = true // set in editor
 
-Flag_A2A_DENSITY = '60'
+Flag_A2A_GENERAL_SETUP = '60'
 Flag_A2A_DIFFICULTY = '67'
 Flag_SAM = '61'
 Flag_AWACS = '62'
@@ -41,7 +41,7 @@ string_A2A_difficulty_fair = 'Fair'
 string_A2A_difficulty_hard = 'Hard'
 
 -- SAAAAAAAAAAAAAAAAms
-string_SAM_setup = 'Change SAM setup'
+string_SAM_setup = 'Change SAM / Ground setup'
 
 string_SAM_settings = 'Change basic SAM threat setting'
 string_SAM_threat_none = 'No Threat'
@@ -54,9 +54,9 @@ string_SAM_engage_missiles_on = 'SAMs engage missiles.'
 string_SAM_engage_missiles_off = 'SAMs will not engage missiles.'
 
 string_SAM_GM = 'Change SAM game master settings'
-string_SAM_GM_off = 'Game master cannot spawn SAMs.'
-string_SAM_GM_red = 'Only red master can spawn SAMs'
-string_SAM_GM_all = 'All players can spawn SAMs'
+string_SAM_GM_off = 'No ground unit spawns.'
+string_SAM_GM_red = 'Red can spawn SAMs & ground units'
+string_SAM_GM_all = 'All players can spawn SAMs & ground units'
 
 -- AWACS
 string_AWACS_settings = 'Change AWACS setting'
@@ -109,7 +109,7 @@ string_GM_airbase_startup_AIR = 'Air spawn'
 
 string_GM_select_airbase = 'Select spawn airbase'
 
-string_GM_select_SAM_zone = 'Select SAM template'
+string_GM_select_SAM_zone = 'Select ground unit template'
 --string_GM_spawn_SAM = 'Spawn SAM at zone'
 
 string_GM_Spawn_Flight = 'Spawn selected plane at ...'
@@ -163,18 +163,18 @@ int_settingsSamsGm = 0 -- 0: off, 1 red only, 2 all
 
 
 customEventHandler = {}
-string_spawnCmd = "SPAWN"
-string_spawnSamCmd = "SPAWN_SAM"
+string_spawnAirCmd = "SPAWN_A"
+string_spawnGroundCmd = "SPAWN_G"
 
 function PrintCurrentSettings()
 	if bool_firstRunDone == true then
 		local currentSettings = "Current settings:\n"
 	
-		local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+		local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
 	
 		currentSettings = currentSettings .. "--------------------- \n"
 		currentSettings = currentSettings .. "1. Air to air: \n"
-		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_DENSITY] .. "\n"
+		currentSettings = currentSettings .. '          Setup: ' .. table_settingsStore[Flag_A2A_GENERAL_SETUP] .. "\n"
 		if airDensity == 4 then
 			currentSettings = currentSettings .. "          Types: Under human control (red) \n"
 		elseif airDensity == 5 then
@@ -215,20 +215,20 @@ end
 -- There was some DCS trigger hookup when I tried merge all those handle function ... so I was too lazy to figure what was going wrong.
 -- flagValue was a bigger object with both the flag and its value ... but somehow it then did not properly call setUserFlag ... dont know.
 function handleA2ADensitySetting(flagValue)
-	trigger.action.setUserFlag(Flag_A2A_DENSITY, flagValue)
+	trigger.action.setUserFlag(Flag_A2A_GENERAL_SETUP, flagValue)
 	
 	if flagValue == 0 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_none
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_none
 	elseif flagValue == 1 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_low
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_low
 	elseif flagValue == 2 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_medium
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_medium
 	elseif flagValue == 3 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_high
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_high
 	elseif flagValue == 4 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_game_master_red
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_game_master_red
 	elseif flagValue == 5 then
-		table_settingsStore[Flag_A2A_DENSITY] = string_A2A_density_game_master_all
+		table_settingsStore[Flag_A2A_GENERAL_SETUP] = string_A2A_density_game_master_all
 	end
 	
 	PrintCurrentSettings()
@@ -560,7 +560,7 @@ end
 
 
 function StartBandarLengehCAP_L39()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
 
 	if airDensity == 1 then
 		BandarCapPlaneL39 = GROUP:FindByName( "IRQ SQ L39 Bandar Lengeh" )
@@ -581,32 +581,38 @@ function StartBandarLengehCAP_L39()
 end
 
 function StartBandarLengehCAP_MIG21()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
 	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
 	if airDensity > 1 and airDifficulty > 0 then
-		BandarCapPlaneMiG21 = GROUP:FindByName( "IRQ SQ MIG21 Bandar Lengeh" )
-		
-		BandarLengehMig21PatrolZone = ZONE:New( "Mig21PatrolZone" )
-		BandarLengehMig21CapZone = AI_CAP_ZONE:New( BandarLengehMig21PatrolZone, 500, 1000, 500, 600 )
-		BandarLengehMig21EngagePolygon = GROUP:FindByName( "IRQ ENGAGE ZONE MIG21" ) -- editor placed polygon
-		BandarLengehMig21CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE MIG21", BandarLengehMig21EngagePolygon )
-		BandarLengehMig21CapZone:SetControllable( BandarCapPlaneMiG21 )
-		BandarLengehMig21CapZone:SetEngageZone( BandarLengehMig21CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the BandarLengehCapEngageZone.
-		BandarLengehMig21CapZone:__Start( 7 ) -- They should statup, and start patrolling in the FishbedPatrolZone.
-		
-		if IsDebuggingOn() == true then
-			trigger.action.outText("Bandar Lengeh MIG21 group initiated", 10)
+		if airDensity < 4 then
+			BandarCapPlaneMiG21 = GROUP:FindByName( "IRQ SQ MIG21 Bandar Lengeh" )
+			
+			BandarLengehMig21PatrolZone = ZONE:New( "Mig21PatrolZone" )
+			BandarLengehMig21CapZone = AI_CAP_ZONE:New( BandarLengehMig21PatrolZone, 500, 1000, 500, 600 )
+			BandarLengehMig21EngagePolygon = GROUP:FindByName( "IRQ ENGAGE ZONE MIG21" ) -- editor placed polygon
+			BandarLengehMig21CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE MIG21", BandarLengehMig21EngagePolygon )
+			BandarLengehMig21CapZone:SetControllable( BandarCapPlaneMiG21 )
+			BandarLengehMig21CapZone:SetEngageZone( BandarLengehMig21CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the BandarLengehCapEngageZone.
+			BandarLengehMig21CapZone:__Start( 7 ) -- They should statup, and start patrolling in the FishbedPatrolZone.
+			
+			if IsDebuggingOn() == true then
+				trigger.action.outText("Bandar Lengeh MIG21 group initiated", 10)
+			end
 		end
 	end
 	return nil
 end
 
 function StartQueshmIslandCAP()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERA_SETUP)
 	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
 	if airDensity < 2 and airDifficulty < 1 then
+		return nil
+	end
+	
+	if airDensity > 3 then
 		return nil
 	end
 
@@ -622,10 +628,14 @@ function StartQueshmIslandCAP()
 end
 
 function StartJ11CAP()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERA_SETUP)
 	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
 
 	if airDensity < 0 and airDifficulty == 2 then
+		return nil
+	end
+	
+	if airDensity > 3 then
 		return nil
 	end
 
@@ -739,15 +749,16 @@ function SpawnSAMs()
 	if int_settingsSamsGm > 0 then
 		trigger.action.outText("Setting up SAM controls for game master", 30)
 	
-		table_gameMasterSAMs[0] = { mySpawnType = SPAWN:New("IRQ EWR SA-2 GM"), mySpawnName = "SA-2"}
-		table_gameMasterSAMs[1] = { mySpawnType = SPAWN:New("IRQ EWR SA-10 GM"), mySpawnName = "SA-10"}
+		table_gameMasterSAMs[0] = { mySpawnType = SPAWN:New("IRQ EWR SA-2 GM"), mySpawnName = "SA-2 site"}
+		table_gameMasterSAMs[1] = { mySpawnType = SPAWN:New("IRQ EWR SA-10 GM"), mySpawnName = "SA-10 site"}
 		table_gameMasterSAMs[2] = { mySpawnType = SPAWN:New("IRQ EWR SA-15 GM"), mySpawnName = "SA-15"}
-		table_gameMasterSAMs[3] = { mySpawnType = SPAWN:New("IRQ EWR SA-3 GM"), mySpawnName = "SA-3"}
-		table_gameMasterSAMs[4] = { mySpawnType = SPAWN:New("IRQ EWR SA-6 GM"), mySpawnName = "SA-6"}
+		table_gameMasterSAMs[3] = { mySpawnType = SPAWN:New("IRQ EWR SA-3 GM"), mySpawnName = "SA-3 site"}
+		table_gameMasterSAMs[4] = { mySpawnType = SPAWN:New("IRQ EWR SA-6 GM"), mySpawnName = "SA-6 site"}
 		table_gameMasterSAMs[5] = { mySpawnType = SPAWN:New("IRQ EWR Shilka GM"), mySpawnName = "Shilka"}
 		table_gameMasterSAMs[5] = { mySpawnType = SPAWN:New("IRQ EWR AAA GM"), mySpawnName = "AAA Enclosed"}
 		table_gameMasterSAMs[6] = { mySpawnType = SPAWN:New("IRQ EWR SITE ISLAND GM"), mySpawnName = "EW site"}
 		table_gameMasterSAMs[7] = { mySpawnType = SPAWN:New("IRQ EWR Ship Molniya GM"), mySpawnName = "Ship: Molniya"}
+		table_gameMasterSAMs[8] = { mySpawnType = SPAWN:New("IRQ EWR CONVOY GM"), mySpawnName = "Convoy"}
 		
 		bool_SamCommanderInitComplete = true
 	
@@ -934,7 +945,7 @@ function PrintcommanderInfoLabelAIR()
 end
 
 function SetupEWRNetwork()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_DENSITY)
+	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
 	local samThreat = trigger.misc.getUserFlag(Flag_SAM)
 	local debuggerEnabled = IsDebuggingOn()
 	bBlueInRedZone = false
@@ -1033,26 +1044,31 @@ function SetupEWRNetwork()
 			end
 			
 			if bool_airCommanderIsRed == true or bool_airCommanderIsEveryone == true then
-				table_gameMasterSpawns[1] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone C101" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone C101"}
-				table_gameMasterSpawns[2] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone IL78" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone IL78"}
-				table_gameMasterSpawns[3] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone SU30" ):InitGrouping(2), mySpawnName = "IRQ SQ Drone SU30"}
-				table_gameMasterSpawns[11] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy L39" ):InitGrouping(2), mySpawnName = "IRQ SQ Easy L39"}
-				table_gameMasterSpawns[11] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy L39" ):InitGrouping(2), mySpawnName = "IRQ SQ Easy L39"}
-				table_gameMasterSpawns[12] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy MIG15" ):InitGrouping(2), mySpawnName = "IRQ SQ Easy MIG15"}
-				table_gameMasterSpawns[21] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair F5" ):InitGrouping(2), mySpawnName = "IRQ SQ Fair F5"}
-				table_gameMasterSpawns[22] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair F4" ):InitGrouping(2), mySpawnName = "IRQ SQ Fair F4"}
-				table_gameMasterSpawns[23] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair MIG23" ):InitGrouping(2), mySpawnName = "IRQ SQ Fair MIG23"}
-				table_gameMasterSpawns[31] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard F14" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard F14"}
-				table_gameMasterSpawns[32] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard MIG29" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard MIG29"}
-				table_gameMasterSpawns[33] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard Mirage" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard Mirage"}
-				table_gameMasterSpawns[34] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard F4" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard F4"}
-				table_gameMasterSpawns[35] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard MIG31" ):InitGrouping(2), mySpawnName = "IRQ SQ Hard MIG31"}
-				table_gameMasterSpawns[36] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ HARD MIG23" ):InitGrouping(2), mySpawnName = "IRQ SQ HARD MIG23"}
+				table_gameMasterSpawns[1] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone C101" ):InitGrouping(2), mySpawnName = "Drone C101"}
+				table_gameMasterSpawns[2] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone IL78" ):InitGrouping(2), mySpawnName = "Drone IL-78"}
+				table_gameMasterSpawns[3] = { myCategory = 0,mySpawnType = SPAWN:New( "IRQ SQ Drone SU30" ):InitGrouping(2), mySpawnName = "Drone SU-30"}
+				table_gameMasterSpawns[11] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy L39" ):InitGrouping(2), mySpawnName = "L-39"}
+				table_gameMasterSpawns[12] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy I-16" ):InitGrouping(2), mySpawnName = "I-16"}
+				table_gameMasterSpawns[13] = { myCategory = 1,mySpawnType = SPAWN:New( "IRQ SQ Easy MIG15" ):InitGrouping(2), mySpawnName = "MiG15"}
+				table_gameMasterSpawns[21] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair F5" ):InitGrouping(2), mySpawnName = "F-5"}
+				table_gameMasterSpawns[22] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair F4" ):InitGrouping(2), mySpawnName = "F-4"}
+				table_gameMasterSpawns[23] = { myCategory = 2,mySpawnType = SPAWN:New( "IRQ SQ Fair MIG23" ):InitGrouping(2), mySpawnName = "MiG-23"}
+				table_gameMasterSpawns[31] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard F14" ):InitGrouping(2), mySpawnName = "F-14B"}
+				table_gameMasterSpawns[32] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard MIG29" ):InitGrouping(2), mySpawnName = "MiG-29"}
+				table_gameMasterSpawns[33] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard Mirage" ):InitGrouping(2), mySpawnName = "M2000C"}
+				table_gameMasterSpawns[34] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard F4" ):InitGrouping(2), mySpawnName = "F-4"}
+				table_gameMasterSpawns[35] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ Hard MIG31" ):InitGrouping(2), mySpawnName = "MIG-31"}
+				table_gameMasterSpawns[36] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ HARD MIG23" ):InitGrouping(2), mySpawnName = "MIG-23"}
+				table_gameMasterSpawns[37] = { myCategory = 3,mySpawnType = SPAWN:New( "IRQ SQ HARD SU33" ):InitGrouping(2), mySpawnName = "SU-33"}
+				
 				table_gameMasterSpawns[41] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU25T CAS" ):InitGrouping(2), mySpawnName = "SU25T CAS"}
-				table_gameMasterSpawns[42] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU25T Anti-ship" ):InitGrouping(2), mySpawnName = "SU25T Anti-ship"}
-				table_gameMasterSpawns[43] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 SEAD" ):InitGrouping(2), mySpawnName = "SU34 SEAD"}
-				table_gameMasterSpawns[44] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 Ground Attack" ):InitGrouping(2), mySpawnName = "SU34 Ground Attack"}
-				table_gameMasterSpawns[45] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G TU22 Ground Attack" ):InitGrouping(2), mySpawnName = "TU22 Ground Attack"}
+				table_gameMasterSpawns[42] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU24 Anti-ship" ):InitGrouping(2), mySpawnName = "SU-24 Anti-ship"}
+				table_gameMasterSpawns[43] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 SEAD" ):InitGrouping(2), mySpawnName = "SU-34 SEAD"}
+				table_gameMasterSpawns[44] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G MIG27 SEAD" ):InitGrouping(2), mySpawnName = "MiG-27 SEAD"}
+				table_gameMasterSpawns[45] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G SU34 Ground Attack" ):InitGrouping(2), mySpawnName = "SU-34 Ground Attack"}
+				table_gameMasterSpawns[46] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G TU22 Ground Attack" ):InitGrouping(2), mySpawnName = "TU-22 Ground Attack"}
+				table_gameMasterSpawns[47] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G MI8 Ground Attack" ):InitGrouping(2), mySpawnName = "Mi-8 Ground Attack"}
+				table_gameMasterSpawns[48] = { myCategory = 4,mySpawnType = SPAWN:New( "IRQ SQ A2G MI24 CAS" ):InitGrouping(2), mySpawnName = "Mi-24 CAS"}
 				
 				-- airbases
 				table_airbases[AIRBASE.PersianGulf.Bandar_Abbas_Intl] = "Bandar Abbas"
@@ -1261,13 +1277,13 @@ function customEventHandler:onEvent(event)
 		table_markPanels = world.getMarkPanels()
 		
 		for key, mark in pairs(table_markPanels) do
-			if string_spawnCmd == mark.text then
+			if string_spawnAirCmd == mark.text then
 				if bool_airCommanderIsEveryone == true or (bool_airCommanderIsRed == true and mark.coalition == coalition.side.RED) then
 					HandleGameMasterSpawnPlaneAtPos(mark.pos)
 					trigger.action.removeMark(mark.idx)
 					break
 				end
-			elseif string_spawnSamCmd == mark.text then
+			elseif string_spawnGroundCmd == mark.text then
 				if int_settingsSamsGm == 2 or (int_settingsSamsGm == 1 and mark.coalition == coalition.side.RED) then
 					HandleGameMasterSpawnSAMAtPos(mark.pos)
 					trigger.action.removeMark(mark.idx)
