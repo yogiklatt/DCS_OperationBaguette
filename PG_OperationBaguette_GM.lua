@@ -846,15 +846,7 @@ function HandleGameMasterSelectAirSpawnZone(givenValue)
 	return nil
 end
 
-function HandleGameMasterPlaneSpawn(airbaseOrZone)
-	if airbaseOrZone == 0 then
-		PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected airbase " .. int_selectedAirbaseToSpawn , 30)
-		table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnAtAirbase( AIRBASE:FindByName( int_selectedAirbaseToSpawn ), int_selectedStartupType )
-	elseif airbaseOrZone == 1 then
-		-- removed, use labels instead
-	end
-	PrintcommanderInfoLabel()
-end
+
 
 function HandleGameMasterPrintFlights()
 	
@@ -900,6 +892,29 @@ function HandleGameMasterPrintFlights()
 	end
 	
 	PrintAirForCoalition(string_flightOverview, 30)
+end
+
+function HandleGameMasterPlaneSpawn(airbaseOrZone)
+	if airbaseOrZone == 0 then
+		PrintAirForCoalition("Trying to spawn " .. table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnName .. " at selected airbase " .. int_selectedAirbaseToSpawn , 30)
+		table_gameMasterSpawns[int_selectedPlaneToSpawn].mySpawnType:SpawnAtAirbase( AIRBASE:FindByName( int_selectedAirbaseToSpawn ), int_selectedStartupType )
+	elseif airbaseOrZone == 1 then
+		-- removed, use labels instead
+	end
+	PrintcommanderInfoLabel()
+end
+
+function HandleGameMasterSpawnPlaneInWorld(spawn, vec3_position)
+	PrintAirForCoalition("Trying to spawn " .. spawn.mySpawnName .. " at selected pos " .. vec3_position.x .. " " .. vec3_position.y .. " " .. vec3_position.z , 30)
+	local vec3_corrected = vec3_position
+	vec3_corrected.y = vec3_corrected.y + 500 -- add a couple of meters above ground
+	lastSpawnCoordinate = COORDINATE:NewFromVec3(vec3_corrected)
+	spawn.mySpawnType:SpawnFromCoordinate(lastSpawnCoordinate)
+	PrintcommanderInfoLabel()
+end
+
+function HandleGameMasterSpawnPlaneAtBase(baseID)
+	
 end
 
 function HandleGameMasterSpawnPlaneAtPos(vec3_position)
@@ -1330,6 +1345,37 @@ function SetJammerEnabled(enabled)
 	UpdateSamState()
 end
 
+
+-- table_gm_drone = {}
+-- table_gm_cap = {}
+-- table_gm_ga = {}
+-- table_gm_sead = {}
+-- table_gm_antiship = {}
+-- table_gm_cas = {}
+
+-- spawnair drone 5
+-- spawnairport drone 5
+
+function mysplit (inputstr, sep)
+        if sep == nil then
+                sep = "%s"
+        end
+        local t={}
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+                table.insert(t, str)
+        end
+        return t
+end
+
+string_spawn_cmd_spawnair = "spawnair"
+string_spawn_cmd_spawnairport = "spawnairport"
+
+string_spawn_drone = "drone"
+string_spawn_cap = "cap"
+string_spawn_ga = "ga"
+string_spawn_antiship = "antiship"
+string_spawn_cas = "cas"
+
 function customEventHandler:onEvent(event)
 	if (world.event.S_EVENT_MARK_ADDED   == event.id) then
 		--trigger.action.outText("Mark added", 60)
@@ -1350,19 +1396,72 @@ function customEventHandler:onEvent(event)
 		table_markPanels = world.getMarkPanels()
 		
 		for key, mark in pairs(table_markPanels) do
-			if string_spawnAirCmd == mark.text then
-				if bool_airCommanderIsEveryone == true or (bool_airCommanderIsRed == true and mark.coalition == coalition.side.RED) then
-					HandleGameMasterSpawnPlaneAtPos(mark.pos)
-					trigger.action.removeMark(mark.idx)
-					break
-				end
-			elseif string_spawnGroundCmd == mark.text then
-				if int_settingsSamsGm == 2 or (int_settingsSamsGm == 1 and mark.coalition == coalition.side.RED) then
-					HandleGameMasterSpawnSAMAtPos(mark.pos)
-					trigger.action.removeMark(mark.idx)
-					break
+			if bool_airCommanderIsEveryone == true or (bool_airCommanderIsRed == true and mark.coalition == coalition.side.RED) then
+			
+				local splitString = string.gmatch(mark.text, "[^%s]+")
+				
+				if splitString[0] != nil and splitString[1] != nil and splitString[2] != nil then
+				
+					local string_spawn_category = splitString[0]
+					local string_plane_category = splitString[1]
+					local int_plane_index = tonumber(splitString[2])
+					
+					-- find the right plane
+					local foundSpawn = nil
+					if string_plane_category == string_spawn_drone then
+						if table_gm_drone[int_plane_index] != nil then
+							foundSpawn = table_gm_drone[int_plane_index]
+						end
+					elseif string_plane_category == table_gm_cap then
+						if table_gm_cap[int_plane_index] != nil then
+							foundSpawn = table_gm_cap[int_plane_index]
+						end
+					elseif string_plane_category == string_spawn_ga then
+						if table_gm_ga[int_plane_index] != nil then
+							foundSpawn = table_gm_ga[int_plane_index]
+						end
+					elseif string_plane_category == string_spawn_antiship then
+						if table_gm_antiship[int_plane_index] != nil then
+							foundSpawn = table_gm_antiship[int_plane_index]
+						end
+					elseif string_plane_category == string_spawn_cas then
+						if table_gm_cas[int_plane_index] != nil then
+							foundSpawn = table_gm_cas[int_plane_index]
+						end
+					end
+						
+					if foundSpawn != nil then
+						-- we got a good plane, now we need to figure out how we spawn it ... air or airport
+						if string_category == string_spawn_cmd_spawnair then
+							HandleGameMasterSpawnPlaneInWorld(foundSpawn, mark.pos)
+							trigger.action.removeMark(mark.idx)
+							break
+						else if string_category == string_spawn_cmd_spawnairport then
+						
+						end
+					end
 				end
 			end
+		
+			--if string_spawnAirCmd == mark.text then
+			--	if bool_airCommanderIsEveryone == true or (bool_airCommanderIsRed == true and mark.coalition == coalition.side.RED) then
+			--	
+			--		-- split string
+			--		table_splitted = mysplit(mark.text , " ")
+			--		
+			--	
+			--	
+			--		HandleGameMasterSpawnPlaneAtPos(mark.pos)
+			--		trigger.action.removeMark(mark.idx)
+			--		break
+			--	end
+			--elseif string_spawnGroundCmd == mark.text then
+			--	if int_settingsSamsGm == 2 or (int_settingsSamsGm == 1 and mark.coalition == coalition.side.RED) then
+			--		HandleGameMasterSpawnSAMAtPos(mark.pos)
+			--		trigger.action.removeMark(mark.idx)
+			--		break
+			--	end
+			--end
 		end
 	end
 	
