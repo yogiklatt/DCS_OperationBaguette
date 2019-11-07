@@ -560,99 +560,6 @@ function createMissionSettings()
 	return nil
 end
 
-
-
-function StartBandarLengehCAP_L39()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
-
-	if airDensity == 1 then
-		BandarCapPlaneL39 = GROUP:FindByName( "IRQ SQ L39 Bandar Lengeh" )
-		
-		BandarLengehL39PatrolZone = ZONE:New( "Mig21PatrolZone" )
-		BandarLengehL39CapZone = AI_CAP_ZONE:New( BandarLengehL39PatrolZone, 500, 1000, 500, 600 )
-		BandarLengehL39EngagePolygon = GROUP:FindByName( "IRQ ENGAGE ZONE MIG21" ) -- editor placed polygon
-		BandarLengehL39CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE MIG21", BandarLengehL39EngagePolygon )
-		BandarLengehL39CapZone:SetControllable( BandarCapPlaneL39 )
-		BandarLengehL39CapZone:SetEngageZone( BandarLengehL39CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the BandarLengehL39CapEngageZone.
-		BandarLengehL39CapZone:__Start( 5 ) -- They should statup, and start patrolling in the FishbedPatrolZone.
-		
-		if IsDebuggingOn() == true then
-			trigger.action.outText("Bandar Lengeh L39 group initiated", 10)
-		end
-	end
-	return nil
-end
-
-function StartBandarLengehCAP_MIG21()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERAL_SETUP)
-	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
-
-	if airDensity > 1 and airDifficulty > 0 then
-		if airDensity < 4 then
-			BandarCapPlaneMiG21 = GROUP:FindByName( "IRQ SQ MIG21 Bandar Lengeh" )
-			
-			BandarLengehMig21PatrolZone = ZONE:New( "Mig21PatrolZone" )
-			BandarLengehMig21CapZone = AI_CAP_ZONE:New( BandarLengehMig21PatrolZone, 500, 1000, 500, 600 )
-			BandarLengehMig21EngagePolygon = GROUP:FindByName( "IRQ ENGAGE ZONE MIG21" ) -- editor placed polygon
-			BandarLengehMig21CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE MIG21", BandarLengehMig21EngagePolygon )
-			BandarLengehMig21CapZone:SetControllable( BandarCapPlaneMiG21 )
-			BandarLengehMig21CapZone:SetEngageZone( BandarLengehMig21CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the BandarLengehCapEngageZone.
-			BandarLengehMig21CapZone:__Start( 7 ) -- They should statup, and start patrolling in the FishbedPatrolZone.
-			
-			if IsDebuggingOn() == true then
-				trigger.action.outText("Bandar Lengeh MIG21 group initiated", 10)
-			end
-		end
-	end
-	return nil
-end
-
-function StartQueshmIslandCAP()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERA_SETUP)
-	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
-
-	if airDensity < 2 and airDifficulty < 1 then
-		return nil
-	end
-	
-	if airDensity > 3 then
-		return nil
-	end
-
-	F5CapPlane = GROUP:FindByName( "IRQ SQ F5" )
-	PatrolZone = ZONE:New( "F5PatrolZone" )
-	F5CapZone = AI_CAP_ZONE:New( PatrolZone, 500, 1000, 500, 600 )
-	EngageZoneGroupF5 = GROUP:FindByName( "IRQ ENGAGE ZONE F5" ) -- editor placed polygon
-	TigerCapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE F5", EngageZoneGroupF5 )
-	F5CapZone:SetControllable( F5CapPlane )
-	F5CapZone:SetEngageZone( TigerCapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
-	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
-	return nil
-end
-
-function StartJ11CAP()
-	local airDensity = trigger.misc.getUserFlag(Flag_A2A_GENERA_SETUP)
-	local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)
-
-	if airDensity < 0 and airDifficulty == 2 then
-		return nil
-	end
-	
-	if airDensity > 3 then
-		return nil
-	end
-
-	J11CapPlane = GROUP:FindByName( "IRQ SQ J-11 Secondaries" )
-	J11PatrolZone = ZONE:New( "J11PatrolZone" )
-	J11CapZone = AI_CAP_ZONE:New( J11PatrolZone, 500, 1000, 500, 600 )
-	J11EngageZoneGroup = GROUP:FindByName( "IRQ ENGAGE ZONE F5" ) -- editor placed polygon
-	J11CapEngageZone = ZONE_POLYGON:New( "IRQ ENGAGE ZONE J11", J11EngageZoneGroup )
-	J11CapZone:SetControllable( J11CapPlane )
-	J11CapZone:SetEngageZone( J11CapEngageZone ) -- Set the Engage Zone. The AI will only engage when the bogeys are within the TigerCapEngageZone.
-	F5CapZone:__Start( 5 ) -- They should statup, and start patrolling in the PatrolZone.
-	return nil
-end
-
 function SpawnTankers()
 	local tankerSetting = trigger.misc.getUserFlag(Flag_TANKER)
 	
@@ -837,7 +744,7 @@ function HandleGameMasterPrintFlightsDrone()
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
 	
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintFlightsCAP()
@@ -847,7 +754,7 @@ function HandleGameMasterPrintFlightsCAP()
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
 	
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintFlightsGA()
@@ -857,7 +764,7 @@ function HandleGameMasterPrintFlightsGA()
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
 	
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintFlightsSEAD()
@@ -866,7 +773,7 @@ function HandleGameMasterPrintFlightsSEAD()
 	for key, value in pairs(table_gm_sead) do
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintFlightsAntiShip()
@@ -876,7 +783,7 @@ function HandleGameMasterPrintFlightsAntiShip()
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
 	
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintFlightsCAS()
@@ -886,7 +793,7 @@ function HandleGameMasterPrintFlightsCAS()
 		string_flightOverview = string_flightOverview .. "[" .. key .. "] " .. value.mySpawnName .. "\n"
 	end
 	
-	PrintAirForCoalition(string_flightOverview, 30)
+	PrintAirForCoalition(string_flightOverview, 15)
 end
 
 function HandleGameMasterPrintAirports()
@@ -894,7 +801,7 @@ function HandleGameMasterPrintAirports()
 	for key, value in pairs(table_airbases) do
 		airbasesLabel = airbasesLabel .. "[" .. key .. "] " .. value.myName .. "\n"
 	end
-	PrintAirForCoalition(airbasesLabel, 30)
+	PrintAirForCoalition(airbasesLabel, 15)
 end
 
 function HandleGameMasterPrintManual()
@@ -943,7 +850,7 @@ end
 
 function PrintcommanderInfoLabel()
 	PrintcommanderInfoLabelSAM()
-	PrintcommanderInfoLabelAIR()
+	--PrintcommanderInfoLabelAIR()
 	return nil
 end
 
@@ -1103,7 +1010,6 @@ function SetupEWRNetwork()
 				table_airbases[5] = { myType = AIRBASE.PersianGulf.Qeshm_Island, myName = "Qeshm_Island"}
 				table_airbases[6] = { myType = AIRBASE.PersianGulf.Shiraz_International_Airport, myName = "Shiraz"}
 				
-				
 				if bool_airCommanderIsRed == true then
 					CMD_GM_LIST_FLIGHTS = missionCommands.addCommandForCoalition(coalition.side.RED, "Print available drone flights", nil, HandleGameMasterPrintFlightsDrone)
 					CMD_GM_LIST_FLIGHTS = missionCommands.addCommandForCoalition(coalition.side.RED, "Print available cap flights", nil, HandleGameMasterPrintFlightsCAP)
@@ -1117,8 +1023,14 @@ function SetupEWRNetwork()
 					
 				elseif bool_airCommanderIsEveryone == true then
 				
-					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available flight spawns", nil, HandleGameMasterPrintFlights)CMD_GM_LIST_AIRBASES = missionCommands.addCommand("Print available air bases", nil, HandleGameMasterPrintAirports)
-					CMD_GM_LIST_MANUAL = missionCommands.addCommand("Print available air bases", nil, HandleGameMasterPrintManual)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available drone flights", nil, HandleGameMasterPrintFlightsDrone)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available cap flights", nil, HandleGameMasterPrintFlightsCAP)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available ground attack flights", nil, HandleGameMasterPrintFlightsGA)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available SEAD flights", nil, HandleGameMasterPrintFlightsSEAD)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available anti-ship flights", nil, HandleGameMasterPrintFlightsAntiShip)
+					CMD_GM_LIST_FLIGHTS = missionCommands.addCommand("Print available CAS flights", nil, HandleGameMasterPrintFlightsCAS)
+					CMD_GM_LIST_AIRBASES = missionCommands.addCommand("Print available air bases", nil, HandleGameMasterPrintAirports)
+					CMD_GM_LIST_MANUAL = missionCommands.addCommand("Print Manual", nil, HandleGameMasterPrintManual)
 				
 					bool_airCommanderInitComplete = true
 				end
