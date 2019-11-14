@@ -77,15 +77,6 @@ string_Perks_none = 'None'
 string_Perks_Cruise_Missiles = 'Cruise missile strike available'
 string_Perks_Jamming_Attack = 'Satellite Jamming Attack'
 
--- DEBUG
-string_Debug_settings = 'Change Debug setting'
-string_Debug_off = 'Debug info disabled'
-string_Debug_on = 'Debug info enabled (Debug planes will be spawned)'
-string_Debug_spawn_hogs = 'Spawn some Hogs!'
-string_Debug_spawn_harriers = 'Spawn some Harriers!'
-string_Debug_spawn_hornets = 'Spawn some Hornets!'
-string_Debug_spawn_tomcats = 'Spawn some Tomcats!'
-
 -- Game master
 string_spawn_air_cmd_spawnair = "spawnair"
 string_spawn_air_cmd_spawnairport = "spawnairport"
@@ -334,39 +325,6 @@ function handlePerkSetting(flagValue)
 	return nil
 end
 
-function HandleDebugHogs()
-	local newSacrifice = Debug_hog_spawn:Spawn()
-	return nil
-end
-
-function HandleDebugHarriers()
-	local newSacrifice = Debug_harrier_spawn:Spawn()
-	return nil
-end
-
-function HandleDebugHornets()
-	local newSacrifice = Debug_hornet_spawn:Spawn()
-	return nil
-end
-
-function HandleDebugTomcats()
-	local newSacrifice = Debug_tomcat_spawn:Spawn()
-	return nil
-end
-
-function handleDebugSettings(flagValue)
-	trigger.action.setUserFlag(Flag_DEBUG, flagValue)
-	
-	if flagValue == 0 then
-		table_settingsStore[Flag_DEBUG] = string_Debug_off
-	elseif flagValue == 1 then
-		table_settingsStore[Flag_DEBUG] = string_Debug_on
-	end
-	
-	PrintCurrentSettings()
-	return nil
-end
-
 function removeSettings()
 	missionCommands.removeItem(CMD_missionStart)
 	
@@ -416,29 +374,12 @@ function removeSettings()
 	missionCommands.removeItem(PRIMARY_Molniya)
 	missionCommands.removeItem(PRIMARY_Molniya_Moving)
 	missionCommands.removeItem(PRIMARY_setting)
-	
-	missionCommands.removeItem(Debug_off)
-	missionCommands.removeItem(Debug_on)
-	missionCommands.removeItem(Debug_setting)
 	return nil
 end
 
 function HandleStart()
 	removeSettings()
 	trigger.action.setUserFlag('70', 1)
-	
-	if IsDebuggingOn() then
-		
-		Debug_hog_spawn = SPAWN:New( "Z - Debug - Hogs" ):InitLimit(12,0)
-		Debug_harrier_spawn = SPAWN:New( "Z - Debug - Harriers" ):InitLimit(12,0)
-		Debug_hornet_spawn = SPAWN:New( "Z - Debug - Hornets" ):InitLimit(12,0)
-		Debug_tomcat_spawn = SPAWN:New( "Z - Debug - Tomcats" ):InitLimit(12,0)
-		
-		CMD_DebugSpawnCommandHogs =  missionCommands.addCommand(string_Debug_spawn_hogs, nil, HandleDebugHogs)
-		CMD_DebugSpawnCommandHarriers = missionCommands.addCommand(string_Debug_spawn_harriers, nil, HandleDebugHarriers)
-		CMD_DebugSpawnCommandHornets =  missionCommands.addCommand(string_Debug_spawn_hornets, nil, HandleDebugHornets)
-		CMD_DebugSpawnCommandTomcats = missionCommands.addCommand(string_Debug_spawn_tomcats, nil, HandleDebugTomcats)
-	end
 end
 
 function createMissionSettings()
@@ -502,13 +443,6 @@ function createMissionSettings()
 	PRIMARY_Yacht_Moving = missionCommands.addCommand(string_Primary_Yacht_Moving, PRIMARY_setting, handlePrimarySetting, 1)
 	PRIMARY_Molniya = missionCommands.addCommand(string_Primary_Molniya, PRIMARY_setting, handlePrimarySetting, 2)
 	PRIMARY_Molniya_Moving = missionCommands.addCommand(string_Primary_Molniya_Moving, PRIMARY_setting, handlePrimarySetting, 3)
-	
-	if bool_allowDebug == true then
-		Debug_setting = missionCommands.addSubMenu(string_Debug_settings)
-		Debug_off = missionCommands.addCommand(string_Debug_off, Debug_setting, handleDebugSettings, 0)
-		Debug_on = missionCommands.addCommand(string_Debug_on, Debug_setting, handleDebugSettings, 1)
-		handleDebugSettings(1)
-	end
 	
 	bool_firstRunDone = true
 	return nil
