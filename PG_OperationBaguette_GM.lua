@@ -832,9 +832,11 @@ function SetupEWRNetwork()
 				table_gm_cap[14] = { mySpawnType = SPAWN:New( "IRQ SQ CAP MIG23" ):InitGrouping(2), mySpawnName = "MiG-23"}
 				
 				table_gm_cas[0] = { mySpawnType = SPAWN:New( "IRQ SQ CAS MI24" ):InitGrouping(2), mySpawnName = "Mi-24"}
-				table_gm_cas[1] = { mySpawnType = SPAWN:New( "IRQ SQ CAS SU25T" ):InitGrouping(2), mySpawnName = "SU-25T"}
-				table_gm_cas[2] = { mySpawnType = SPAWN:New( "IRQ SQ CAS L39" ):InitGrouping(2), mySpawnName = "L-39"}
-				
+				table_gm_cas[1] = { mySpawnType = SPAWN:New( "IRQ SQ CAS MI28" ):InitGrouping(2), mySpawnName = "Mi-28"}
+				table_gm_cas[2] = { mySpawnType = SPAWN:New( "IRQ SQ CAS KA50" ):InitGrouping(2), mySpawnName = "Ka-50"}
+				table_gm_cas[3] = { mySpawnType = SPAWN:New( "IRQ SQ CAS SU25T" ):InitGrouping(2), mySpawnName = "SU-25T"}
+				table_gm_cas[4] = { mySpawnType = SPAWN:New( "IRQ SQ CAS L39" ):InitGrouping(2), mySpawnName = "L-39"}
+								
 				table_gm_antiship[0] = { mySpawnType = SPAWN:New( "IRQ SQ ANTISHIP TU142" ):InitGrouping(2), mySpawnName = "TU-142"}
 				table_gm_antiship[1] = { mySpawnType = SPAWN:New( "IRQ SQ ANTISHIP SU24" ):InitGrouping(2), mySpawnName = "SU-24"}
 				table_gm_antiship[2] = { mySpawnType = SPAWN:New( "IRQ SQ ANTISHIP MIG29" ):InitGrouping(2), mySpawnName = "MiG-29"}
