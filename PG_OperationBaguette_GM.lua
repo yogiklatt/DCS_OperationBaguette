@@ -35,6 +35,8 @@ list_game_cap = {
 	{ name = "NATO SQ CAP F15", label = "BLUE F-15C" },
 	{ name = "NATO SQ CAP F16", label = "BLUE F-16C" },
 	{ name = "NATO SQ CAP M2000", label = "BLUE Mirage 2000C" },
+	{ name = "NATO SQ CAP F14", label = "BLUE F-14B Tomcat" },
+	{ name = "NATO SQ CAP FA18", label = "BLUE F/A-18C" },
 }
 
 list_game_cas = {
@@ -905,7 +907,7 @@ function SetupEWRNetwork()
 		
 		CCCPBorderZone = ZONE_POLYGON:New( "IRQ Border", GROUP:FindByName( "IRQ Border" ) )
 		
-		if airDensity > 0 and airDensity < 4 then
+		if airDensity > 0 then
 			-- do not execute this action on player control
 		
 			local airDifficulty = trigger.misc.getUserFlag(Flag_A2A_DIFFICULTY)	
