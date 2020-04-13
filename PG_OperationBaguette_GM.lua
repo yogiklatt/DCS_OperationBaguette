@@ -247,6 +247,8 @@ Flag_MISSION_START = '70'
 Flag_AWACS_STARTUP = '40'
 Flag_AWACS_RED_STARTUP = '41'
 Flag_BLUE_IN_RED_BORDER = '95'
+Flag_SCUD_TRANSMISSION_BEACON_1 = '96'	-- used in editor only!
+Flag_SCUD_TRANSMISSION_BEACON_2 = '97'	-- used in editor only!
 
 Flag_GM_SETUP = '555'
 
@@ -257,7 +259,7 @@ string_A2A_density_settings = 'AI - Air Density:'
 string_A2A_density_none = 'No Air to Air Threat'
 string_A2A_density_low = 'AI - Low Density'
 string_A2A_density_medium = 'AI - Medium Density'
-string_A2A_density_high = 'AI - High Density#'
+string_A2A_density_high = 'AI - High Density'
 
 string_A2A_difficulty_settings = 'AI - Air Threat Level'
 string_A2A_difficulty_easy = 'Easy'
@@ -287,7 +289,7 @@ string_AWACS_settings = 'Change AWACS setting'
 string_AWACS_NONE = 'No AWACS'
 string_AWACS_BLUE = 'Blue AWACS'
 string_AWACS_RED = 'Red AWACS'
-string_AWACS_BLUE_AND_RED = 'Blue and red AWACS'
+string_AWACS_BLUE_AND_RED = 'Blue and Red AWACS'
 
 string_TANKER_settings = 'Change Tanker setting'
 string_Tankers_off = 'No tanker'
@@ -695,7 +697,7 @@ function SpawnSAMs()
 	
 		if samThreat > 0 then
 			counter_sams_hard = 2
-			counter_aaa = 5
+			counter_aaa = 10
 			
 			AI_SAM_Easy_West = SPAWN:New( "IRQ EWR AI EASY SPAWN 1" ):InitRandomizeTemplate(table_AI_SAM_Easy_Units ):InitRandomizeZones(table_AI_SAM_Easy_Zones_West):Spawn()
 			
@@ -708,7 +710,7 @@ function SpawnSAMs()
 			-- spawn 2 SA-10s
 		
 			counter_sams_hard = 6
-			counter_aaa = 10
+			counter_aaa = 20
 			counter_sams_ir = 4
 		
 			AI_SAM_Medium_West = SPAWN:New( "IRQ EWR AI MEDIUM SPAWN 1" ):InitRandomizeTemplate(table_AI_SAM_Medium_Units ):InitRandomizeZones(table_AI_SAM_Medium_West_Zones):Spawn()
@@ -718,7 +720,7 @@ function SpawnSAMs()
 		
 		if samThreat > 2 then
 			counter_sams_hard = 12
-			counter_aaa = 20
+			counter_aaa = 30
 			counter_sams_ir = 8
 			counter_ships = 1
 		end
@@ -1117,7 +1119,7 @@ function UpdateSamState()
 	if bool_updateState then
 		bool_mSamControl_weaponsFree = bool_weaponsFree
 	
-		if bool_mSamControl_weaponsFree then			
+		if bool_mSamControl_weaponsFree then
 			PrintAirForCoalition("EWR ROE: new value is true", 60)
 			Set_EWR:ForEachGroupAlive(
 			function(Set_EWR)
