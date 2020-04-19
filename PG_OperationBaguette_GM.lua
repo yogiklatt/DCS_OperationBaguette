@@ -778,7 +778,7 @@ function SpawnSAMs()
 			missionCommands.addCommandForCoalition(coalition.side.RED, "Set Weapons Free", CMD_GM_LIST_GROUND, HandleROESwap, 1)
 			missionCommands.addCommandForCoalition(coalition.side.RED, "Set Weapons Hold", CMD_GM_LIST_GROUND, HandleROESwap, 0)
 		elseif int_settingsGM == 2 then
-			CMD_GM_LIST_GROUND = missionCommands.addSubMenu("Air Units Contro")
+			CMD_GM_LIST_GROUND = missionCommands.addSubMenu("Ground Unit Control")
 			missionCommands.addCommand("Print Anti-air units", CMD_GM_LIST_GROUND, HandleGameMasterPrintGround, table_gm_ground_aa)
 			missionCommands.addCommand("Print armor units", CMD_GM_LIST_GROUND, HandleGameMasterPrintGround, table_gm_ground_armor)
 			missionCommands.addCommand("Print sea units", CMD_GM_LIST_GROUND, HandleGameMasterPrintGround, table_gm_ground_ship)
@@ -1047,7 +1047,7 @@ function SetupEWRNetwork()
 	
 	-- add helpers for game master
 	if int_settingsGM == 1 then
-		CMD_GM_LIST_FLIGHTS = missionCommands.addSubMenuForCoalition(coalition.side.RED, "Print flight info")
+		CMD_GM_LIST_FLIGHTS = missionCommands.addSubMenuForCoalition(coalition.side.RED, "Air units")
 		missionCommands.addCommandForCoalition(coalition.side.RED, "Print available drone flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_drone)
 		missionCommands.addCommandForCoalition(coalition.side.RED, "Print available cap flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_cap)
 		missionCommands.addCommandForCoalition(coalition.side.RED, "Print available ground attack flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_ga)
@@ -1058,7 +1058,7 @@ function SetupEWRNetwork()
 		missionCommands.addCommandForCoalition(coalition.side.RED, "Print use", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintAirManual)
 		
 	elseif int_settingsGM == 2 then
-		CMD_GM_LIST_FLIGHTS = missionCommands.addSubMenu("Print flight info")
+		CMD_GM_LIST_FLIGHTS = missionCommands.addSubMenu("Air units")
 		missionCommands.addCommand("Print available drone flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_drone)
 		missionCommands.addCommand("Print available cap flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_cap)
 		missionCommands.addCommand("Print available ground attack flights", CMD_GM_LIST_FLIGHTS, HandleGameMasterPrintFlights, table_gm_ga)
