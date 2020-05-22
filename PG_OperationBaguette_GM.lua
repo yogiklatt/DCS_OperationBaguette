@@ -282,7 +282,7 @@ string_SAM_engage_missiles_off = 'SAMs will not engage missiles.'
 string_GM = 'Game Master Setup'
 string_GM_off = 'No Game master'
 string_GM_red = 'Red Game master only'
-string_GM_all = 'All Player'
+string_GM_all = 'All Players'
 
 -- AWACS
 string_AWACS_settings = 'Change AWACS setting'
@@ -293,7 +293,7 @@ string_AWACS_BLUE_AND_RED = 'Blue and Red AWACS'
 
 string_TANKER_settings = 'Change Tanker setting'
 string_Tankers_off = 'No tanker'
-string_Tankers_west = 'West Tankers (Shell)'
+string_Tankers_west = 'West Navy Tankers (Texaco, Shell)'
 string_Tankers_east = 'East Tankers (Arco)'
 string_Tankers_both = 'All Tankers'
 
@@ -648,14 +648,26 @@ end
 function SpawnTankers()
 	local tankerSetting = trigger.misc.getUserFlag(Flag_TANKER)
 	
+	-- set up carrier recovery tankers
 	if tankerSetting == 1 or tankerSetting == 3 then
-		Spawn_Tanker1a = SPAWN:New( "TankerShell1" ):Spawn()
-		Spawn_Tanker1b = SPAWN:New( "TankerShell2" ):Spawn()
-		if IsDebuggingOn() == true then
-			trigger.action.outText("Tankers Shell (west) spawned", 10)
-		end
+		LincolnRecoveryTanker1=RECOVERYTANKER:New(UNIT:FindByName("Abraham Lincoln"), "RecoveryTankerTexaco")
+		LincolnRecoveryTanker1:SetTakeoffCold()
+		LincolnRecoveryTanker1:SetTACAN(33, "TXA")
+		LincolnRecoveryTanker1:SetAltitude(6000)
+		LincolnRecoveryTanker1:SetRadio(132.250)
+		LincolnRecoveryTanker1:SetCallsign(CALLSIGN.Tanker.Texaco)
+		LincolnRecoveryTanker1:Start()
+		
+		LincolnRecoveryTanker2=RECOVERYTANKER:New(UNIT:FindByName("Abraham Lincoln"), "RecoveryTankerShell")
+		LincolnRecoveryTanker2:SetTakeoffCold()
+		LincolnRecoveryTanker2:SetTACAN(34, "SHL")
+		LincolnRecoveryTanker2:SetAltitude(7000)
+		LincolnRecoveryTanker2:SetRadio(132.750)
+		LincolnRecoveryTanker2:SetCallsign(CALLSIGN.Tanker.Shell)
+		LincolnRecoveryTanker2:Start()
 	end
 	
+	-- set up ground based tankers
 	if tankerSetting == 2 or tankerSetting == 3 then
 		Spawn_Tanker2a = SPAWN:New( "TankerArco1" ):Spawn()
 		Spawn_Tanker2b = SPAWN:New( "TankerArco2" ):Spawn()
@@ -663,6 +675,21 @@ function SpawnTankers()
 			trigger.action.outText("Tankers Arco (east) spawned", 10)
 		end
 	end
+	
+		-- set up recovery chopper
+	RescueHelo=RESCUEHELO:New(UNIT:FindByName("Abraham Lincoln"), "RescueHelo")
+	RescueHelo:SetHomeBase(AIRBASE:FindByName("OliverHazzardPerry"))
+	RescueHelo:SetTakeoffCold()
+	RescueHelo:Start()
+	
+	--
+	
+	if tankerSetting == 0 then
+		return
+	end
+	
+	
+	
 	return nil
 end
 
@@ -697,7 +724,7 @@ function SpawnSAMs()
 	
 		if samThreat > 0 then
 			counter_sams_hard = 2
-			counter_aaa = 10
+			counter_aaa = 15
 			
 			AI_SAM_Easy_West = SPAWN:New( "IRQ EWR AI EASY SPAWN 1" ):InitRandomizeTemplate(table_AI_SAM_Easy_Units ):InitRandomizeZones(table_AI_SAM_Easy_Zones_West):Spawn()
 			
@@ -1120,14 +1147,14 @@ function UpdateSamState()
 		bool_mSamControl_weaponsFree = bool_weaponsFree
 	
 		if bool_mSamControl_weaponsFree then
-			PrintAirForCoalition("EWR ROE: new value is true", 60)
+			PrintAirForCoalition("EWR ROE: Weapons Free", 60)
 			Set_EWR:ForEachGroupAlive(
 			function(Set_EWR)
 				Set_EWR:OptionROEOpenFire()
 			end 
 		)
 		else
-			PrintAirForCoalition("EWR ROE: new value is false", 60)
+			PrintAirForCoalition("EWR ROE: Weapons Hold", 60)
 			Set_EWR:ForEachGroupAlive(
 			function(Set_EWR)
 				Set_EWR:OptionROEHoldFire()
